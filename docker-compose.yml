@@ -1,0 +1,15 @@
+version: "3"
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: "mysql57"
+    environment:
+      MYSQL_DATABASE: "mysqldb"
+      MYSQL_USER: "mysql"
+      MYSQL_PASSWORD: "mysql123"
+      MYSQL_ROOT_PASSWORD: "root123"
+    ports:
+      # HOST:CONTAINER
+      - "3357:3306"
+    volumes:
+      - /var/lib/mysql
