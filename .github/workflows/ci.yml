@@ -17,6 +17,6 @@ jobs:
         # Only run this step if the branch is main
         if: github.ref == 'refs/heads/main'
         env:
-          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          deploy_url: "https://api.render.com/deploy/srv-ckd840kiibqc738obm90?key=LjgY62nCDp8"
         run: |
           curl "$deploy_url"
