@@ -42,32 +42,42 @@ module.exports = {
           }
           return;
         }
-        const originalnames = req.files
-          .map((file) => file.originalname)
-          .join(", "); // Tạo chuỗi từ originalnames
-        const room_id = req.body.room_id; // Lấy room_id từ request body
-        console.log('originalnames', originalnames)
-        var inputValues = {
-          name: originalnames,
-          room_id: room_id,
-          createdAt: new Date(),
-        };
-        RoomImage.create(inputValues, function (err, data) {
-          if(err){
-            res.send({
-                message: "Tạo ảnh phòng that bai",
-                status: 404,
-                data: err,
-              });
-          }else {
-            res.send({
-                message: "Tạo ảnh phòng thành công",
-                status: 200,
-                data: data,
-              });
-          }
+        const room_id = req.body.room_id; 
+        const promises = req.files.map((file) => {
+          return new Promise((resolve, reject) => {
+            const inputValues = {
+              name: file.originalname,
+              type: file.mimetype,
+              data: file.size,
+              room_id: room_id,
+              createdAt: new Date(),
+            };
+        
+            RoomImage.create(inputValues, function (err, data) {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(data);
+              }
+            });
+          });
         });
-        // res.status(200).end("Your files uploaded.");
+        
+        Promise.all(promises)
+          .then((results) => {
+            res.status(200).send({
+              message: "Tạo ảnh phòng thành công",
+              status: 200,
+              data: results,
+            });
+          })
+          .catch((error) => {
+            res.status(500).send({
+              message: "Tạo ảnh phòng thất bại",
+              status: 500,
+              data: error,
+            });
+          });
       });
     } catch (error) {
       res.send({

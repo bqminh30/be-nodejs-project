@@ -16,13 +16,13 @@ Service.create = (newService, result) => {
       return;
     }
 
-    console.log("created tutorial: ", { id: res.insertId, ...newService });
+    console.log("created service: ", { id: res.insertId, ...newService });
     result(null, { id: res.insertId, ...newService });
   });
 };
 
 Service.findById = (id, result) => {
-  sql.query(`SELECT * FROM service WHERE id = ${id}`, (err, res) => {
+  sql.query(`SELECT s.id, s.name, s.unit, s.price,s.type_service_id, type_service.name AS type_service from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id WHERE id = ${id}`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -41,7 +41,7 @@ Service.findById = (id, result) => {
 };
 
 Service.getAll = (title, result) => {
-  let query = "SELECT * FROM service";
+  let query = "SELECT s.id, s.name, s.unit, s.price,s.type_service_id, type_service.name AS type_service from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id";
 
   if (title) {
     query += ` WHERE name LIKE '%${title}%'`;

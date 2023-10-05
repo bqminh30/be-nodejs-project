@@ -57,7 +57,6 @@ exports.createRoom = (req, res) => {
           });
         else
           res.send({
-            status: 200,
             data: data,
             message: "Tạo phòng thành công",
           });
@@ -143,7 +142,7 @@ exports.findAll = (req, res) => {
       res.status(500).send({
         message: err.message || "Some error occurred while retrieving Room.",
       });
-    else res.send(data);
+    else res.status(200).send(data);
   });
 };
 
@@ -161,10 +160,7 @@ exports.findRoomById = (req, res) => {
         });
       }
     } else
-      res.send({
-        status: 200,
-        data: data,
-      });
+      res.status(200).send(data);
   });
 };
 

@@ -10,6 +10,7 @@ const roomImagesRoutes = require("./app/routes/room_image.routes");
 const apiRouter = express.Router();
 const cloudinary = require("cloudinary").v2;
 
+
 var corsOptions = {
   origin: "http://localhost:8080",
   credentials: true, //access-control-allow-credentials:true
@@ -22,11 +23,16 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
+// app.use(express.static('public/images'));
+// app.use(express.static(__dirname + '/public/images'));
+// app.use(express.static('public'));
+// app.use(express.static(__dirname +'public/images'));
 app.use(cors(corsOptions));
 app.use(cookieParser());
 // parse requests of content-type - application/json
 app.use(express.json()); /* bodyParser.json() is deprecated */
 app.use(bodyParser.json());
+
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(

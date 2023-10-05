@@ -69,10 +69,10 @@ TypeRoom.getAllPublished = result => {
   });
 };
 
-TypeRoom.updateById = (id, tutorial, result) => {
+TypeRoom.updateById = (typeroom, result) => {
   sql.query(
     "UPDATE type_room SET name = ? WHERE id = ?",
-    [TypeRoom.name, id],
+    [typeroom.name, typeroom.id],
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -86,8 +86,8 @@ TypeRoom.updateById = (id, tutorial, result) => {
         return;
       }
 
-      console.log("updated tutorial: ", { id: id, ...tutorial });
-      result(null, { id: id, ...tutorial });
+      console.log("updated typeroom: ", { id: typeroom.id, ...typeroom });
+      result(null, { id: typeroom.id, ...typeroom });
     }
   );
 };

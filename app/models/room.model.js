@@ -1,5 +1,8 @@
 const sql = require("../config/db.js");
-const currentDate = new Date(); 
+const Service = require("./service.model")
+const Room_Image = require("./room_image.model")
+
+const currentDate = new Date();
 // constructor
 const Rooms = function (value) {
   this.name = value.name;
@@ -34,6 +37,10 @@ Rooms.createRoom = (newRoom, result) => {
     result(null, { id: res.insertId, ...newRoom });
   });
 };
+
+Rooms.createRoomDeatil = (data, result) => {
+  
+}
 
 Rooms.updateRoomById = (id, value, result) => {
   sql.query(
@@ -73,9 +80,8 @@ Rooms.updateRoomById = (id, value, result) => {
 };
 
 Rooms.updatePriceSale = (newPrice, newVoucherId, roomIdToUpdate, result) => {
-
   sql.query(
-    'SELECT value, startDate, endDate FROM vouchers WHERE id = ?',
+    "SELECT value, startDate, endDate FROM vouchers WHERE id = ?",
     [newVoucherId],
     (voucherErr, voucherRes) => {
       if (voucherErr) {
@@ -109,14 +115,19 @@ Rooms.updatePriceSale = (newPrice, newVoucherId, roomIdToUpdate, result) => {
               console.log("Error updating priceSale: ", updateErr);
               result(null, updateErr);
             } else {
-              console.log("Updated priceSale for room with id: ", roomIdToUpdate);
+              console.log(
+                "Updated priceSale for room with id: ",
+                roomIdToUpdate
+              );
               result(updateRes);
             }
           }
         );
       } else {
         // Nếu ngày hiện tại không nằm trong khoảng startDate và endDate, không thay đổi "priceSale"
-        console.log("Current date is not within the range of startDate and endDate");
+        console.log(
+          "Current date is not within the range of startDate and endDate"
+        );
         result(null, "No changes to priceSale");
       }
     }
@@ -125,16 +136,19 @@ Rooms.updatePriceSale = (newPrice, newVoucherId, roomIdToUpdate, result) => {
 
 Rooms.findRoomById = (id, result) => {
   sql.query(
-    `SELECT r.*, GROUP_CONCAT(s.name SEPARATOR ', ') AS service, room_image.roomImages ` +
-      `FROM room r ` +
-      `LEFT JOIN room_service rs ON r.id = rs.room_id ` +
-      `LEFT JOIN (
-        SELECT room_id, GROUP_CONCAT(name SEPARATOR ', ') AS roomImages
+    `SELECT r.*, 
+        CONCAT('[', GROUP_CONCAT('{"id":', s.id, ',"name":"', s.name, '"}' SEPARATOR ','), ']') AS service,
+        room_image.roomImages
+        FROM room r 
+          LEFT JOIN room_service rs ON r.id = rs.room_id 
+          LEFT JOIN service s ON rs.service_id = s.id 
+          LEFT JOIN (
+            SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', room_image.id, ',"name":"', room_image.name, '" }' SEPARATOR ','), ']') AS roomImages
         FROM room_image
-        GROUP BY room_id
-    ) room_image ON room_image.room_id = r.id ` +
-      `LEFT JOIN service s ON rs.service_id = s.id WHERE r.id = ${id} ` +
-      `GROUP BY r.id`,
+          GROUP BY room_id
+        ) room_image ON room_image.room_id = r.id WHERE r.id = ${id}
+    GROUP BY r.id;
+    `,
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -153,16 +167,19 @@ Rooms.findRoomById = (id, result) => {
 };
 
 Rooms.getAll = (title, result) => {
-  let query = `SELECT r.*, GROUP_CONCAT(s.name SEPARATOR ', ') AS service, room_image.roomImages
-        FROM room r 
-        LEFT JOIN room_service rs ON r.id = rs.room_id 
-        LEFT JOIN service s ON rs.service_id = s.id 
-        LEFT JOIN (
-            SELECT room_id, GROUP_CONCAT(name SEPARATOR ', ') AS roomImages
-            FROM room_image
-            GROUP BY room_id
-        ) room_image ON room_image.room_id = r.id
-        GROUP BY r.id`;
+  let query = `SELECT r.*, 
+  CONCAT('[', GROUP_CONCAT('{"id":', s.id, ',"name":"', s.name, '"}' SEPARATOR ','), ']') AS service,
+  room_image.roomImages
+FROM room r 
+LEFT JOIN room_service rs ON r.id = rs.room_id 
+LEFT JOIN service s ON rs.service_id = s.id 
+LEFT JOIN (
+  SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', room_image.id, ',"name":"', room_image.name, '" }' SEPARATOR ','), ']') AS roomImages
+  FROM room_image
+  GROUP BY room_id
+) room_image ON room_image.room_id = r.id
+GROUP BY r.id;
+`;
 
   sql.query(query, (err, res) => {
     if (err) {

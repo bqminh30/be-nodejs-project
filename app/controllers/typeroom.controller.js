@@ -71,26 +71,19 @@ exports.findAllPublished = (req, res) => {
 // Update a TypeRoom identified by the id in the request
 exports.update = (req, res) => {
   // Validate Request
-  if (!req.body) {
-    res.status(400).send({
-      message: "Content can not be empty!"
-    });
-  }
+ const data ={
+  id: req.params.id,
+  name: req.body.name
+ }
 
   TypeRoom.updateById(
-    req.params.id,
-    new TypeRoom(req.body),
+    data,
     (err, data) => {
       if (err) {
-        if (err.kind === "not_found") {
-          res.status(404).send({
-            message: `Not found TypeRoom with id ${req.params.id}.`
-          });
-        } else {
           res.status(500).send({
             message: "Error updating TypeRoom with id " + req.params.id
           });
-        }
+        
       } else res.send(data);
     }
   );

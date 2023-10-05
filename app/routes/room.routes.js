@@ -15,5 +15,5 @@ module.exports = (app) => {
   //Update a new Room
   router.put("/update/:id", room.updateRoom);
 
-  app.use("/api/room", router);
+  app.use("/api/rooms", router);
 };
