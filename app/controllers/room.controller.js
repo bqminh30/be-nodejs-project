@@ -26,7 +26,13 @@ exports.createRoom = (req, res) => {
       res.send(err);
     } else {
       // store image in database
-      var imageName = req.file.originalname;
+      var imageName;
+      if (req.file && req.file.originalname) {
+        imageName = req.file;
+      } else {
+        imageName = req.body.image.preview;
+      }
+
       const room = new Room({
         name: req.body.name,
         title: req.body.title,
@@ -40,8 +46,8 @@ exports.createRoom = (req, res) => {
         numberPeople: req.body.numberPeople,
         status: req.body.status,
         label: req.body.label,
-        isLiked: req.body.isLiked,
-        image: imageName,
+        isLiked: 0,
+        image: JSON.stringify(imageName),
         voucher_id: req.body.voucher_id ? req.body.voucher_id : null,
         type_room_id: req.body.type_room_id ? req.body.type_room_id : null,
         createdAt: new Date(),
@@ -56,7 +62,7 @@ exports.createRoom = (req, res) => {
               err.message || "Some error occurred while creating the Room.",
           });
         else
-          res.send({
+          res.status(200).send({
             data: data,
             message: "Tạo phòng thành công",
           });
@@ -110,11 +116,11 @@ exports.updateRoom = (req, res) => {
               req.body.voucher_id,
               req.params.id,
               (data, err) => {
-                if(err){
+                if (err) {
                   res.status(400).send({
                     message: "Error updating room with id " + err,
                   });
-                }else {
+                } else {
                   res.send({
                     status: 200,
                     message: "Update phòng thành công",
@@ -159,8 +165,7 @@ exports.findRoomById = (req, res) => {
           message: "Error retrieving Room with id " + req.params.id,
         });
       }
-    } else
-      res.status(200).send(data);
+    } else res.status(200).send(data);
   });
 };
 

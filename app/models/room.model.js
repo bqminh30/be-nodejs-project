@@ -19,7 +19,7 @@ const Rooms = function (value) {
   this.label = value.label;
   this.isLiked = value.isLiked;
   this.image = value.image;
-  this.voucher_id = value.rating;
+  this.voucher_id = value.voucher_id;
   this.type_room_id = value.type_room_id;
   this.createdAt = new Date();
   this.updatedAt = new Date();
@@ -34,7 +34,7 @@ Rooms.createRoom = (newRoom, result) => {
     }
 
     console.log("created room: ", { id: res.insertId, ...newRoom });
-    result(null, { id: res.insertId, ...newRoom });
+    result(null, { id: res.insertId,image:res.image, ...newRoom });
   });
 };
 
@@ -52,15 +52,12 @@ Rooms.updateRoomById = (id, value, result) => {
       value.title,
       value.description,
       value.price,
-      // value.rating,
-      // value.totalRating,
-      // value.totalReview,
       value.numberBed,
       value.numberPeople,
       value.status,
       value.label,
       value.isLiked,
-      value.image,
+      JSON.stringify(value.image),
       value.voucher_id,
       value.type_room_id,
       value.updatedAt,
@@ -74,7 +71,7 @@ Rooms.updateRoomById = (id, value, result) => {
         return;
       }
       console.log("updated room: ", { id: id, ...value });
-      result({ id: id, ...value });
+      result({ id: id,image:image, ...value });
     }
   );
 };
@@ -136,7 +133,7 @@ Rooms.updatePriceSale = (newPrice, newVoucherId, roomIdToUpdate, result) => {
 
 Rooms.findRoomById = (id, result) => {
   sql.query(
-    `SELECT r.*, 
+    `SELECT r.* , 
         CONCAT('[', GROUP_CONCAT('{"id":', s.id, ',"name":"', s.name, '"}' SEPARATOR ','), ']') AS service,
         room_image.roomImages
         FROM room r 
@@ -157,8 +154,13 @@ Rooms.findRoomById = (id, result) => {
       }
 
       if (res.length) {
-        console.log("found voucher: ", res[0]);
-        result(null, res[0]);
+        const resultServices = JSON.parse(res[0].service)
+        const resultImages = JSON.parse(res[0].roomImages) 
+        result(null, {
+          data: res[0],
+          services: resultServices,
+          images: resultImages
+        });
         return;
       }
       result({ kind: "not_found" }, null);
@@ -188,7 +190,7 @@ GROUP BY r.id;
       return;
     }
 
-    console.log("rooms: ", res);
+    // console.log("rooms: ", res);
     result(null, res);
   });
 };

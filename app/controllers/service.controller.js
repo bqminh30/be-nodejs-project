@@ -24,7 +24,7 @@ exports.create = (req, res) => {
         message:
           err.message || "Some error occurred while creating the service."
       });
-    else res.send(data);
+    else res.status(200).send(data);
   });
 };
 
@@ -38,7 +38,21 @@ exports.findAll = (req, res) => {
         message:
           err.message || "Some error occurred while retrieving TypeRooms."
       });
-    else res.send(data);
+    else res.status(200).send(data);
+  });
+};
+
+// Retrieve all TypeRooms from the database (with condition).
+exports.findById = (req, res) => {
+  const id = req.params.id;
+
+  Service.getById(id, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving TypeRooms."
+      });
+    else res.status(200).send(data);
   });
 };
 
@@ -55,7 +69,7 @@ exports.findByTypeService = (req, res) => {
           message: "Error retrieving TypeRoom with id " + req.params.id
         });
       }
-    } else res.send(data);
+    } else res.status(200).send(data);
   });
 };
 

@@ -51,7 +51,7 @@ TypeRoom.getAll = (title, result) => {
       return;
     }
 
-    console.log("type_room: ", res);
+    // console.log("type_room: ", res);
     result(null, res);
   });
 };

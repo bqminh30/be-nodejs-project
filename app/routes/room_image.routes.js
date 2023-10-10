@@ -8,6 +8,9 @@ const roomImage = require('../controllers/room_image.controller');
 // router.get('/image/:id', facilitiesController.getImage);
 
 router.get('/create', roomImage.roomImageUpload)
-router.post('/create', roomImage.roomserviceCreate)
+router.post('/create', roomImage.roomImageCreate)
+
+router.get('/update', roomImage.roomImageUpload)
+router.put('/update/:id', roomImage.roomImageUpdate)
 
 module.exports = router;

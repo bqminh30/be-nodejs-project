@@ -11,6 +11,7 @@ module.exports = (app) => {
     // // Create a new Room
     // router.get("/create", room.createFormRoom);
     router.post("/create", room_service.roomserviceCreate);
+    router.post("/create-mul/:id", room_service.roomServiceMulCreate)
   
     //Update a new Room
     // router.put("/update/:id", room.updateRoom);

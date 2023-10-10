@@ -8,9 +8,11 @@ module.exports = app => {
   
     // Retrieve all services
     router.get("/", services.findAll);
+
+    router.get("/:id", services.findById);
   
     // Retrieve services with id type service
-    router.get("/:id", services.findByTypeService);
+    router.get("/type/:id", services.findByTypeService);
   
     // Update a services with id
     router.put("/:id", services.update);

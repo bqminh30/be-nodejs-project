@@ -15,29 +15,25 @@ var corsOptions = {
   origin: "http://localhost:8080",
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
+  
 };
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET,
+  secure: true
 });
 
-// app.use(express.static('public/images'));
-// app.use(express.static(__dirname + '/public/images'));
-// app.use(express.static('public'));
-// app.use(express.static(__dirname +'public/images'));
+console.log(cloudinary.config());
 app.use(cors(corsOptions));
 app.use(cookieParser());
-// parse requests of content-type - application/json
-app.use(express.json()); /* bodyParser.json() is deprecated */
+app.use(express.json());
 app.use(bodyParser.json());
 
-
-// parse requests of content-type - application/x-www-form-urlencoded
 app.use(
   express.urlencoded({ extended: true })
-); /* bodyParser.urlencoded() is deprecated */
+); 
 app.use("/upload", express.static("public/images"));
 
 // simple route
@@ -57,6 +53,10 @@ require("./app/routes/orders.routes.js")(app);
 require("./app/routes/room_service.routes.js")(app);
 app.use("/api/facilities", facilitiesRoutes);
 app.use("/api/room-image", roomImagesRoutes);
+
+const uploadRouter = require('./app/routes/image.routes.js');
+
+app.use('/uploads', uploadRouter);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 6969;
