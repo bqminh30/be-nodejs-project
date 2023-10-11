@@ -25,7 +25,6 @@ cloudinary.config({
   secure: true
 });
 
-console.log(cloudinary.config());
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
@@ -51,8 +50,9 @@ require("./app/routes/voucher.routes.js")(app);
 require("./app/routes/room.routes.js")(app);
 require("./app/routes/orders.routes.js")(app);
 require("./app/routes/room_service.routes.js")(app);
+require("./app/routes/room_image.routes.js")(app);
 app.use("/api/facilities", facilitiesRoutes);
-app.use("/api/room-image", roomImagesRoutes);
+// app.use("/api/room-image", roomImagesRoutes);
 
 const uploadRouter = require('./app/routes/image.routes.js');
 

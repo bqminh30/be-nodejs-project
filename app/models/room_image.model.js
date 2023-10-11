@@ -11,18 +11,17 @@ const RoomImage = function(data) {
 };
 
 RoomImage.create = (data, result) => {
-  return new Promise((resolve, reject) => {
   sql.query("INSERT INTO room_image SET ?", data, (err, res) => {
     if (err) {
       console.log("error: ", err);
-      reject(err, null);
+      result(err, null);
       return;
     }
 
     console.log("created room_image: ", { id: res.insertId, ...data });
-    resolve(null, { id: res.insertId, ...data });
+    result(null, { id: res.insertId, ...data });
   });
-})
+
 };
 
 RoomImage.findOneAndUpdate = (data, result) => {

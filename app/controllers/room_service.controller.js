@@ -47,7 +47,7 @@ module.exports = {
       }
       const idRoom = req.params.id;
       const requestData = req.body; // Đổi tên biến data thành requestData
-    
+      console.log('requestData', requestData)
       const promises = []
       if(requestData?.length <= 0){
         res.status(500).send({
@@ -55,13 +55,15 @@ module.exports = {
           status: 500,
         });
       }
+      
       else {
         requestData.forEach( async (item) => {
+          console.log('item',item)
           return new Promise((resolve, reject) => {
             const inputValues = {
               quantity: 1,
               room_id: idRoom,
-              service_id: item.service_id,
+              service_id: item,
               createdAt: new Date(),
               updatedAt: new Date(),
             };

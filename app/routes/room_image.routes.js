@@ -1,16 +1,14 @@
-// routes/facilities.routes.js
 
-const express = require('express');
-const router = express.Router();
-const roomImage = require('../controllers/room_image.controller');
+module.exports = (app) => {
+  const roomImage = require("../controllers/room_image.controller.js");
 
-// router.post('/create', uploadMiddleware, facilitiesController.create);
-// router.get('/image/:id', facilitiesController.getImage);
+  var router = require("express").Router();
+  // Get All Room
+  router.get("/create", roomImage.roomImageUpload);
+  router.post("/create", roomImage.roomImageCreate);
 
-router.get('/create', roomImage.roomImageUpload)
-router.post('/create', roomImage.roomImageCreate)
+  router.get("/update", roomImage.roomImageUpload);
+  router.put("/update/:id", roomImage.roomImageUpdate);
 
-router.get('/update', roomImage.roomImageUpload)
-router.put('/update/:id', roomImage.roomImageUpdate)
-
-module.exports = router;
+  app.use("/api/room-image", router);
+};
