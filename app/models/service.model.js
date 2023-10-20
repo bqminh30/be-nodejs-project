@@ -22,6 +22,7 @@ Service.create = (newService, result) => {
 };
 
 Service.getById = (id, result) => {
+  console.log('id', id)
   let query = `
   SELECT s.id, s.name, s.unit, s.price,s.type_service_id, type_service.name AS type_service
    from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id WHERE s.id = ${id}`;

@@ -120,10 +120,9 @@ exports.update = (req, res) => {
   });
 };
 
-
 // Delete a TypeRoom with the specified id in the request
 exports.delete = (req, res) => {
-    Reviews.remove(req.params.id, (err, data) => {
+  Reviews.remove(req.params.id, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({
@@ -134,6 +133,7 @@ exports.delete = (req, res) => {
           message: "Could not delete Service with id " + req.params.id,
         });
       }
-    } else res.status(200).send({ message: `Service was deleted successfully!` });
+    } else
+      res.status(200).send({ message: `Service was deleted successfully!` });
   });
 };

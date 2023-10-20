@@ -140,7 +140,7 @@ Rooms.findRoomById = (id, result) => {
           LEFT JOIN room_service rs ON r.id = rs.room_id 
           LEFT JOIN service s ON rs.service_id = s.id 
           LEFT JOIN (
-            SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', room_image.id, ',"name":"', room_image.name, '" }' SEPARATOR ','), ']') AS roomImages
+            SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', room_image.id, ',"name":"', room_image.data, '" }' SEPARATOR ','), ']') AS roomImages
         FROM room_image
           GROUP BY room_id
         ) room_image ON room_image.room_id = r.id WHERE r.id = ${id}
@@ -176,7 +176,7 @@ FROM room r
 LEFT JOIN room_service rs ON r.id = rs.room_id 
 LEFT JOIN service s ON rs.service_id = s.id 
 LEFT JOIN (
-  SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', room_image.id, ',"name":"', room_image.name, '" }' SEPARATOR ','), ']') AS roomImages
+  SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', room_image.id, ',"name":"', room_image.data, '" }' SEPARATOR ','), ']') AS roomImages
   FROM room_image
   GROUP BY room_id
 ) room_image ON room_image.room_id = r.id

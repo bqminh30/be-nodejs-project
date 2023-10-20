@@ -1,3 +1,5 @@
+
+
 require("dotenv").config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
@@ -6,10 +8,9 @@ const cors = require("cors");
 const path = require("path");
 const app = express();
 const facilitiesRoutes = require("./app/routes/facilities.routes");
-const roomImagesRoutes = require("./app/routes/room_image.routes");
 const apiRouter = express.Router();
-const cloudinary = require("cloudinary").v2;
 
+const cloudinary = require("cloudinary").v2;
 
 var corsOptions = {
   origin: "http://localhost:8080",
@@ -18,17 +19,14 @@ var corsOptions = {
   
 };
 
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
-  secure: true
-});
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
 
 app.use(
   express.urlencoded({ extended: true })
@@ -38,6 +36,14 @@ app.use("/upload", express.static("public/images"));
 // simple route
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to server." });
+});
+
+// cloudinary configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
+  secure: true,
 });
 
 require("./app/routes/typeroom.routes.js")(app);
@@ -52,11 +58,6 @@ require("./app/routes/orders.routes.js")(app);
 require("./app/routes/room_service.routes.js")(app);
 require("./app/routes/room_image.routes.js")(app);
 app.use("/api/facilities", facilitiesRoutes);
-// app.use("/api/room-image", roomImagesRoutes);
-
-const uploadRouter = require('./app/routes/image.routes.js');
-
-app.use('/uploads', uploadRouter);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 6969;

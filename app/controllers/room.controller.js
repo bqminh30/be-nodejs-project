@@ -1,9 +1,14 @@
 const Room = require("../models/room.model.js");
 var imageMiddleware = require("../middleware/image-middleware");
 var multer = require("multer");
+const fs = require("fs");
+const axios = require("axios");
+var cloudinary = require("cloudinary").v2;
+const uploadCloud = require("../config/cloudinary.config.js");
+
 // Create and Save a new Room
 exports.createFormRoom = (req, res) => {
-  res.render("upload-form-room");
+  // res.render("upload-form");
 };
 exports.createRoom = (req, res) => {
   // Validate request
@@ -19,34 +24,34 @@ exports.createRoom = (req, res) => {
     allowedImage: imageMiddleware.image.allowedImage,
   }).single("image");
 
-  upload(req, res, function (err) {
+  upload(req, res, async function (err) {
     if (err instanceof multer.MulterError) {
       res.send(err);
     } else if (err) {
       res.send(err);
     } else {
-      // store image in database
-      let imageName = req.body.image
-      const image = JSON.parse(imageName)
+      let imageName = req.body.image;
+      const imagePath = JSON.parse(imageName);
 
-      // if (req.file && req.file.originalname) {
-      //   imageName = req.file;
-      // } else {
-      //   imageName = req.body.image.preview;
-      // }
-
-      if(
-        req.body.name == '' || req.body.title == '' || req.body.description == '' ||  req.body.price == 0
-      ){
+      if (
+        req.body.name == "" ||
+        req.body.title == "" ||
+        req.body.description == "" ||
+        req.body.price == 0
+      ) {
         res.status(400).send({
-          message:
-             "Thiếu dữ liệu.",
+          message: "Thiếu dữ liệu.",
         });
 
         return;
       }
-      console.log('imageName', req.file, req.body)
-
+      let dataImage = ''
+      await cloudinary.uploader
+        .upload(imagePath.preview)
+        .then((result) => dataImage = result.url)
+        .catch((err) => console.log("err", err));
+      // return;
+      
       const room = new Room({
         name: req.body.name,
         title: req.body.title,
@@ -61,7 +66,7 @@ exports.createRoom = (req, res) => {
         status: req.body.status ? req.body.status : 0,
         label: req.body.label ? req.body.label: 0,
         isLiked: req.body.isLiked ? req.body.isLiked : 0,
-        image: image.preview,
+        image: dataImage,
         voucher_id: req.body.voucher_id ? req.body.voucher_id : null,
         type_room_id: req.body.type_room_id ? req.body.type_room_id : null,
         createdAt: new Date(),

@@ -50,6 +50,13 @@ Reviews.checkReview = (data, result) => {
   );
 };
 
+// Reviews.checkIsReview = (data, result) => {
+//   const query = `
+//   SELECT COUNT(*) AS cnt
+//   FROM reviews WHERE customer_id = ? AND room_id = ?
+//   `
+// }
+
 Reviews.createReview = (newReview, result) => {
   // If the order meets both criteria, proceed with creating the review
   // Your database insertion logic goes here
@@ -58,17 +65,23 @@ Reviews.createReview = (newReview, result) => {
     [newReview.customer_id, newReview.room_id],
     (err, existingReviews) => {
       if (err) {
-        return result({
-          status: 500,
-          message: `Error checking existing reviews: ${err}`,
-        }, null);
+        return result(
+          {
+            status: 500,
+            message: `Error checking existing reviews: ${err}`,
+          },
+          null
+        );
       }
 
       if (existingReviews.length > 0) {
-        return result({
-          status: 403,
-          message: "You have already reviewed this room.",
-        }, null);
+        return result(
+          {
+            status: 403,
+            message: "You have already reviewed this room.",
+          },
+          null
+        );
       }
 
       sql.query(
@@ -93,20 +106,21 @@ Reviews.createReview = (newReview, result) => {
               null
             );
           }
-    
+
           // Review created successfully
           return result(null, { id: res.insertId, ...newReview });
         }
       );
-    })
- 
+    }
+  );
 };
 
-
 Reviews.getAll = (room_id, result) => {
-  let query = "SELECT * FROM reviews WHERE status = 1 AND room_id = ?";
+  let query = `SELECT cus.fullname, cus.phonenumber, cus.email, reviews.content, reviews.image, reviews.rating, reviews.status FROM reviews
+  INNER JOIN customer cus ON cus.id = reviews.customer_id
+WHERE status = 1 AND room_id = ?`;
 
-  sql.query(query,room_id, (err, res) => {
+  sql.query(query, room_id, (err, res) => {
     if (err) {
       result(null, err);
       return;
@@ -156,25 +170,5 @@ Reviews.remove = (id, result) => {
     result(null, res);
   });
 };
-
-// Reviews.getAllServiceByTypeService = (id, result) => {
-//   sql.query(
-//     `SELECT * FROM service WHERE type_service_id='${id}'`,
-//     (err, res) => {
-//       if (err) {
-//         console.log("error: ", err);
-//         result(null, err);
-//         return;
-//       }
-
-//       console.log("service: ", res);
-//       result(null, res);
-//     }
-//   );
-// };
-
-
-
-
 
 module.exports = Reviews;
