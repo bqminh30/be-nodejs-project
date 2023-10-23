@@ -30,12 +30,13 @@ Customer.regiser = (newcustomer, result) => {
           return;
         } else {
           sql.query(
-            "INSERT INTO customer (fullname, email, passwordHash, createdAt) VALUES (?,?,?,?)",
+            "INSERT INTO customer (fullname, email, passwordHash, createdAt, updatedAt) VALUES (?,?,?,?,?)",
             [
               newcustomer.fullname,
               newcustomer.email,
               newcustomer.password,
-              newcustomer.cretedAt,
+              newcustomer.createdAt,
+              newcustomer.updatedAt
             ],
             (err, res) => {
               if (err) {
@@ -58,7 +59,8 @@ Customer.regiser = (newcustomer, result) => {
     }
   );
 };
-Customer.getcustomerByEmail = (email) => {
+Customer.getCustomerByEmail = (email) => {
+  console.log('email', email)
   return new Promise((resolve, reject) => {
     sql.query("SELECT * FROM customer WHERE email = ?", email, (error, res) => {
       if (error) {

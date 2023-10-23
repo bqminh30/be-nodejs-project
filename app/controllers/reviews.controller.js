@@ -46,7 +46,7 @@ exports.create = (req, res) => {
       const review = new Reviews({
         content: req.body.content,
         rating: req.body.rating,
-        image: imageName,
+        image: imageName ? imageName : '',
         status: 1,
         room_id: req.body.room_id,
         customer_id: req.body.customer_id,

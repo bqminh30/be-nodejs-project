@@ -50,13 +50,6 @@ Reviews.checkReview = (data, result) => {
   );
 };
 
-// Reviews.checkIsReview = (data, result) => {
-//   const query = `
-//   SELECT COUNT(*) AS cnt
-//   FROM reviews WHERE customer_id = ? AND room_id = ?
-//   `
-// }
-
 Reviews.createReview = (newReview, result) => {
   // If the order meets both criteria, proceed with creating the review
   // Your database insertion logic goes here
@@ -85,7 +78,7 @@ Reviews.createReview = (newReview, result) => {
       }
 
       sql.query(
-        "INSERT INTO reviews (content, image, rating,status, room_id, customer_id, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?,?)",
+        "INSERT INTO reviews (content, image, rating, status, room_id, customer_id, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?,?)",
         [
           newReview.content,
           newReview.image,
@@ -107,8 +100,25 @@ Reviews.createReview = (newReview, result) => {
             );
           }
 
-          // Review created successfully
-          return result(null, { id: res.insertId, ...newReview });
+          // Review created successfully, now calculate and update room rating
+          sql.query(
+            "UPDATE room AS r SET r.rating = (SELECT AVG(rv.rating) FROM reviews AS rv WHERE rv.room_id = r.id) WHERE r.id = ?",
+            [newReview.room_id],
+            (err) => {
+              if (err) {
+                return result(
+                  {
+                    status: 500,
+                    message: `Error updating room rating: ${err}`,
+                  },
+                  null
+                );
+              }
+
+              // Rating updated successfully
+              return result(null, { id: res.insertId, ...newReview });
+            }
+          );
         }
       );
     }

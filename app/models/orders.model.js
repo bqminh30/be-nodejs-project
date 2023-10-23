@@ -1,5 +1,5 @@
 const sql = require("../config/db.js");
-const Order_Detail = require("./order_detail.model")
+const Order_Detail = require("./order_detail.model");
 
 // constructor
 const Orders = function (data) {
@@ -23,12 +23,11 @@ Orders.createOrderWithDetails = async (requestData) => {
     // Create order details associated with the order
     const createdOrderDetails = await Promise.all(
       orderDetails.map(async (detail) => {
-       
         // Associate order detail with the created order
         detail.order_id = createdOrder;
         // Create the order detail and store the result (including its id)
         const createdDetail = await Order_Detail.createOrderDetail(detail);
-    
+
         return createdDetail;
       })
     );
@@ -43,7 +42,7 @@ Orders.create = (requestData) => {
   return new Promise((resolve, reject) => {
     //insert the order data into the "orders" table
     sql.query(
-      "INSERT INTO orders (createdDate, count, status, total, note, customer_id, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO orders (createdDate, count, status, total, note, customer_id, createdAt,updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [
         requestData.createdDate,
         requestData.count,
@@ -51,6 +50,7 @@ Orders.create = (requestData) => {
         requestData.total,
         requestData.note,
         requestData.customer_id,
+        new Date(),
         new Date(),
       ],
       (err, orderRes) => {
@@ -83,9 +83,15 @@ Orders.findById = (id, result) => {
   });
 };
 
-Orders.getAll = ( result) => {
-  let query = "SELECT * FROM orders";
-  
+Orders.getAll = (result) => {
+  let query = `
+    SELECT od.* ,
+      CONCAT('[', GROUP_CONCAT('{"fullname":"', cus.fullname, '", "email":"', cus.email, '"}' SEPARATOR ','), ']') AS customer
+    FROM orders od
+      LEFT JOIN customer cus ON od.customer_id = cus.id 
+    GROUP BY od.id
+  `;
+
   sql.query(query, (err, res) => {
     if (err) {
       result(null, err);
@@ -145,7 +151,6 @@ Orders.updateStatusOrderById = (data, result) => {
     }
   );
 };
-
 
 Orders.remove = (id, result) => {
   sql.query("DELETE FROM type_room WHERE id = ?", id, (err, res) => {

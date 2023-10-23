@@ -5,6 +5,7 @@ const Employee = require("../models/employee.model.js");
 const { hashSync, genSaltSync, compareSync } = require("bcrypt");
 
 exports.register = (req, res, next) => {
+  
   try {
     const fullname = req.body.fullname;
     const email = req.body.email;

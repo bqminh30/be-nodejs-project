@@ -50,7 +50,7 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
-exports.getOrderById = async (req, res) => {
+exports.getOrderStatusById = async (req, res) => {
   try {
     Orders.getOrderStatus(req.params.id, (err, data) => {
       if (err)

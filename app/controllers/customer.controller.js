@@ -5,6 +5,7 @@ const Customer = require("../models/customer.model.js");
 const { hashSync, genSaltSync, compareSync } = require("bcrypt");
 
 exports.register = async (req, res, next) => {
+  
   try {
     const fullname = req.body.fullname;
     const email = req.body.email;
@@ -23,17 +24,18 @@ exports.register = async (req, res, next) => {
       fullname,
       email,
       password,
-      createdAt: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
-
     try {
-      user = await Customer.getEmployeeByEmail(email);
+      user = await Customer.getCustomerByEmail(email);
       if (user) {
-        return res.send({
+        return res.status(400).send({
           message: "Invalid email or password",
         });
       } else {
-        Customer.regiser(data, (err, data) => {
+        console.log('data', data)
+       await Customer.regiser(data, (err, data) => {
           if (err)
             res.status(500).send({
               message:
@@ -44,7 +46,7 @@ exports.register = async (req, res, next) => {
             const jsontoken = jsonwebtoken.sign(
               { data: data },
               process.env.JWT_SECRET,
-              { expiresIn: "1d" }
+              { expiresIn: "30d" }
             );
             res.cookie("token", jsontoken, {
               httpOnly: true,
@@ -57,9 +59,14 @@ exports.register = async (req, res, next) => {
           }
         });
       }
-    } catch (err) {}
-  } catch {
-    console.log("Lỗi Register");
+    } catch (err) {
+      return res.status(400).send({
+        message: "Invalid email or password",
+      });
+    }
+  } catch (err){
+    console.log("Lỗi Register", err);
+    return;
   }
 };
 
@@ -68,7 +75,7 @@ exports.login = async (req, res, next) => {
     const email = req.body.email;
     const password = req.body.passwordHash;
 
-    const user = await Customer.getEmployeeByEmail(email);
+    const user = await Customer.getCustomerByEmail(email);
     if (!user) {
       return res.status(404).json({
         message: "User not found",
