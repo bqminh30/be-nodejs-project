@@ -65,22 +65,47 @@ Orders.create = (requestData) => {
 };
 
 Orders.findById = (id, result) => {
-  sql.query(`SELECT * FROM orders WHERE id = ${id}`, (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-      result(err, null);
-      return;
-    }
+  sql.query(
+    `
+    SELECT od.*,
+      CONCAT('[', GROUP_CONCAT('{"checkinDate":"', od_detail.checkinDate, '",
+      "checkoutDate":"', od_detail.checkoutDate, '",
+      "status":"', od_detail.status, '",
+      "dateCount":"', od_detail.dateCount, '",
+      "total":"', od_detail.total, '",
+      "personCount":"', od_detail.personCount, '",
+      "room_name":"', r.name, '"}' SEPARATOR ','), ']') AS od_detail,
+      c.fullname,
+      c.email,
+      c.phonenumber
+    FROM orders od
+      LEFT JOIN order_detail od_detail ON od_detail.order_id = od.id 
+      LEFT JOIN room r ON r.id = od_detail.room_id
+      LEFT JOIN customer c ON c.id = od.customer_id
+    WHERE od.id = ${id}
+      GROUP BY od.id
+ `,
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
 
-    if (res.length) {
-      console.log("found tutorial: ", res[0]);
-      result(null, res[0]);
-      return;
-    }
+      if (res.length) {
+        console.log("found order id: ", res[0]);
+        const result_order = JSON.parse(res[0].od_detail);
+        result(null, {
+          data: res[0],
+          order_detail: result_order,
+        });
+        return;
+      }
 
-    // not found orders with the id
-    result({ kind: "not_found" }, null);
-  });
+      // not found orders with the id
+      result({ kind: "not_found" }, null);
+    }
+  );
 };
 
 Orders.getAll = (result) => {
