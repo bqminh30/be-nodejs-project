@@ -1,4 +1,6 @@
 const sql = require("../config/db.js");
+const jsonwebtoken = require("jsonwebtoken");
+
 
 const Employee = function (employee) {
   this.fullname = employee.fullname;
@@ -16,12 +18,12 @@ const Employee = function (employee) {
 };
 
 Employee.regiser = (newEmployee, result) => {
-  if (newEmployee.role_id !== 2) {
-    return result({
-      status: 403,
-      message: "Only admin users can create employees with the 'staff' role.",
-    }, null);
-  }
+  // if (newEmployee.role_id !== 2) {
+  //   return result({
+  //     status: 403,
+  //     message: "Only admin users can create employees with the 'staff' role.",
+  //   }, null);
+  // }
 
   sql.query(
     "SELECT COUNT(*) AS cnt FROM employee WHERE email = ? ",
@@ -119,3 +121,10 @@ Employee.updateProfile = (data, userId) => {
 };
 
 module.exports = Employee;
+
+
+
+
+
+
+

@@ -3,6 +3,8 @@ var imageMiddleware = require("../middleware/image-middleware");
 const jsonwebtoken = require("jsonwebtoken");
 const Employee = require("../models/employee.model.js");
 const { hashSync, genSaltSync, compareSync } = require("bcrypt");
+const jwtHelper = require("../helpers/jwtHelper");
+
 
 exports.register = (req, res, next) => {
   
@@ -45,7 +47,7 @@ exports.register = (req, res, next) => {
           httpOnly: true,
           secure: true,
           SameSite: "strict",
-          expires: new Date(Number(new Date()) + 30 * 60 * 1000),
+          expires: new Date(Number(new Date()) + 30 * 24 * 60 * 60 * 1000),
         }); //we add secure: true, when using https.
 
         res.send({ token: jsontoken, data: data });
@@ -73,13 +75,16 @@ exports.login = async (req, res, next) => {
         const jsontoken = jsonwebtoken.sign(
           { data: user },
           process.env.JWT_SECRET,
-          { expiresIn: "1d" }
+          {
+            algorithm: "HS256",
+            expiresIn: '30d',
+          },
         );
         res.cookie("token", jsontoken, {
           httpOnly: true,
           secure: true,
           SameSite: "strict",
-          expires: new Date(Number(new Date()) + 30 * 60 * 1000),
+          expires: new Date(Number(new Date()) + 30 * 24 * 60 * 60 * 1000),
         }); //we add secure: true, when using https.
 
         res.send({ token: jsontoken, data: user });
@@ -97,6 +102,38 @@ exports.login = async (req, res, next) => {
     });
   }
 };
+
+exports.isAuth = async (req, res, next) => {
+  try {
+    const tokenFromClient = req.body.token || req.query.token || req.headers["authorization"];
+    if (tokenFromClient) {
+      if (!tokenFromClient) {
+        return res.status(403).send({ message: "No token provided!" });
+      }
+      
+      const bearerToken = tokenFromClient.split(' ')[1]
+      const isCheckToken = jsonwebtoken.verify(bearerToken, process.env.JWT_SECRET)
+      if(isCheckToken.data){
+        return res.status(200).json({
+          data: isCheckToken.data
+        })
+      }
+     
+    } else {
+      // No token found in the request, return a 403 (Forbidden) status code
+      return res.status(403).json({
+        message: 'No token provided.',
+      });
+    }
+  } catch (err) {
+    // Handle any other unexpected errors and return a 500 (Internal Server Error) status code
+    console.error(err);
+    res.status(500).json({
+      message: 'Internal Server Error',
+    });
+  }
+};
+
 
 exports.update = async (req, res, next) => {
   try {
