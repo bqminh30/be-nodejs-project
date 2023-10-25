@@ -65,7 +65,7 @@ exports.login = async (req, res, next) => {
 
     user = await Employee.getEmployeeByEmail(email);
     if (!user) {
-      return res.send({
+      return res.status(400).send({
         message: "Invalid email or password",
       });
     } else {
@@ -87,17 +87,16 @@ exports.login = async (req, res, next) => {
           expires: new Date(Number(new Date()) + 30 * 24 * 60 * 60 * 1000),
         }); //we add secure: true, when using https.
 
-        res.send({ token: jsontoken, data: user });
+        res.send({ token: jsontoken, user: user });
       } else {
-        return res.send({
+        return res.status(400).send({
           status: 400,
           message: "Invalid email or password",
         });
       }
     }
   } catch {
-    return res.send({
-      status: 500,
+    return res.status(400).send({
       message: "Invalid email or password",
     });
   }
@@ -115,7 +114,7 @@ exports.isAuth = async (req, res, next) => {
       const isCheckToken = jsonwebtoken.verify(bearerToken, process.env.JWT_SECRET)
       if(isCheckToken.data){
         return res.status(200).json({
-          data: isCheckToken.data
+          user: isCheckToken.data
         })
       }
      

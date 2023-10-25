@@ -8,11 +8,11 @@ module.exports = app => {
     
     router.post("/login", employees.login);
 
-    router.post('/check-auth', employees.isAuth)
+    router.get('/check-auth', employees.isAuth)
 
     router.put("/update/:id", employees.update);
   
-  
+
     app.use('/api/employee', router);
   };
   
