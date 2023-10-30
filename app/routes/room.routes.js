@@ -11,7 +11,8 @@ module.exports = (app) => {
   //Get Rooms by type Room id
   router.get('/type/:id',room.findRoomsByTypeRoomId)
   // Create a new Room
-  router.get("/create", room.createFormRoom);
+  // router.get("/create", room.createFormRoom);
+  
   router.post("/create", room.createRoom);
 
   //Update a new Room

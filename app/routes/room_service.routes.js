@@ -14,7 +14,7 @@ module.exports = (app) => {
     router.post("/create-mul/:id", room_service.roomServiceMulCreate)
   
     //Update a new Room
-    // router.put("/update/:id", room.updateRoom);
+    router.post("/update/:id", room_service.roomServiceUpdate);
   
     app.use("/api/room_service", router);
   };

@@ -1,14 +1,11 @@
 const Room = require("../models/room.model.js");
 var imageMiddleware = require("../middleware/image-middleware");
 var multer = require("multer");
-const fs = require("fs");
-const axios = require("axios");
 var cloudinary = require("cloudinary").v2;
-const uploadCloud = require("../config/cloudinary.config.js");
 
 // Create and Save a new Room
 exports.createFormRoom = (req, res) => {
-  // res.render("upload-form");
+  res.render("upload-form");
 };
 exports.createRoom = (req, res) => {
   // Validate request
@@ -30,9 +27,6 @@ exports.createRoom = (req, res) => {
     } else if (err) {
       res.send(err);
     } else {
-      let imageName = req.body.image;
-      const imagePath = JSON.parse(imageName);
-
       if (
         req.body.name == "" ||
         req.body.title == "" ||
@@ -45,13 +39,20 @@ exports.createRoom = (req, res) => {
 
         return;
       }
-      let dataImage = ''
+
+      let imageName = req.body.image;
+      const imagePath = JSON.parse(imageName);
+
+      let dataImage = "";
       await cloudinary.uploader
-        .upload(imagePath.preview)
-        .then((result) => dataImage = result.url)
+        .upload(
+          imagePath
+            ? `G:/ProjectHou/images/p1/${imagePath.path}`
+            : req.body.image
+        )
+        .then((result) => (dataImage = result.url))
         .catch((err) => console.log("err", err));
-      // return;
-      
+
       const room = new Room({
         name: req.body.name,
         title: req.body.title,
@@ -96,30 +97,42 @@ exports.updateRoom = (req, res) => {
       storage: imageMiddleware.image.storage(),
       allowedImage: imageMiddleware.image.allowedImage,
     }).single("image");
-    upload(req, res, function (err) {
+    upload(req, res, async function (err) {
       if (err instanceof multer.MulterError) {
         res.send(err);
       } else if (err) {
         res.send(err);
       } else {
-        // store image in database
-        var imageName = req.file.originalname;
+        let dataImage = "";
+        let imageName = req.body.image;
+        const containsCloudinary = imageName.indexOf("res.cloudinary.com") !== -1;
+        if(containsCloudinary){
+          dataImage = imageName
+        }else {
+          const imagePath = JSON.parse(imageName);
+          await cloudinary.uploader
+          .upload(
+            imagePath.path
+              ? `G:/ProjectHou/images/p1/${imagePath.path}`
+              : req.body.image
+          )
+          .then((result) => (dataImage = result.url))
+          .catch((err) => console.log("err", err));
+        }
+
         const room = new Room({
           name: req.body.name,
           title: req.body.title,
           description: req.body.description,
           price: req.body.price,
-          // rating: req.body.rating ? req.body.rating : 0,
-          // totalReview: req.body.totalReview ? req.body.totalReview : 0,
-          // totalRating: req.body.totalRating ? req.body.totalRating : 0,
           numberBed: req.body.numberBed,
           numberPeople: req.body.numberPeople,
           status: req.body.status,
           label: req.body.label,
           isLiked: req.body.isLiked,
-          image: imageName ? imageName : req.body.image,
-          voucher_id: req.body.voucher_id ? req.body.voucher_id : null,
-          type_room_id: req.body.type_room_id ? req.body.type_room_id : null,
+          image: dataImage,
+          voucher_id: req.body.voucher_id,
+          type_room_id: req.body.type_room_id,
           updatedAt: new Date(),
         });
 
@@ -129,23 +142,10 @@ exports.updateRoom = (req, res) => {
               message: "Error updating room with id " + err,
             });
           } else
-            Room.updatePriceSale(
-              req.body.price,
-              req.body.voucher_id,
-              req.params.id,
-              (data, err) => {
-                if (err) {
-                  res.status(400).send({
-                    message: "Error updating room with id " + err,
-                  });
-                } else {
-                  res.send({
-                    status: 200,
-                    message: "Update phòng thành công",
-                  });
-                }
-              }
-            );
+            res.status(200).send({
+              data: data,
+              message: "Cập nhật phòng thành công",
+            });
         });
       }
     });

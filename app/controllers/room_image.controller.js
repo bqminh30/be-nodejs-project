@@ -41,53 +41,55 @@ module.exports = {
           });
         }
 
-        for (const file of files) {
-          // Ảnh ở đây là dưới dạng base64, bạn có thể giữ nó như vậy
-          let dataImage = file.preview;
+        // for (const file of files) {
+        //   // Ảnh ở đây là dưới dạng base64, bạn có thể giữ nó như vậy
+        //   let dataImage = file.path;
+        //   try {
+        //     // Tải ảnh lên Cloudinary hoặc nơi lưu trữ tương tự
+        //     const result = await cloudinary.uploader.upload(
+        //       dataImage ?  `G:/ProjectHou/images/p1/${dataImage}` : ,
+        //       {
+        //         // Cấu hình Cloudinary nếu cần
+        //       }
+        //     );
+        //     dataImage = result.url;
+        //   } catch (err) {
+        //     console.log("Error uploading to Cloudinary:", err);
+        //   }
 
-          try {
-            // Tải ảnh lên Cloudinary hoặc nơi lưu trữ tương tự
-            const result = await cloudinary.uploader.upload(dataImage, {
-              // Cấu hình Cloudinary nếu cần
-            });
-            dataImage = result.url;
-          } catch (err) {
-            console.log("Error uploading to Cloudinary:", err);
-          }
+        //   const inputValues = {
+        //     name: file.path,
+        //     data: dataImage,
+        //     room_id: room_id,
+        //     createdAt: new Date(),
+        //   };
 
-          const inputValues = {
-            name: file.path,
-            data: dataImage,
-            room_id: room_id,
-            createdAt: new Date(),
-          };
+        //   const promise = new Promise((resolve, reject) => {
+        //     RoomImage.create(inputValues, (err, data) => {
+        //       if (err) {
+        //         reject(err);
+        //       } else {
+        //         resolve(data);
+        //       }
+        //     });
+        //   });
 
-          const promise = new Promise((resolve, reject) => {
-            RoomImage.create(inputValues, (err, data) => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve(data);
-              }
-            });
-          });
+        //   promises.push(promise);
+        // }
 
-          promises.push(promise);
-        }
-
-        try {
-          await Promise.all(promises);
-          res.status(200).send({
-            message: "Room images updated successfully",
-            status: 200,
-          });
-        } catch (error) {
-          res.status(500).send({
-            message: "Failed to update room images",
-            status: 500,
-            data: error,
-          });
-        }
+        // try {
+        //   await Promise.all(promises);
+        //   res.status(200).send({
+        //     message: "Room images updated successfully",
+        //     status: 200,
+        //   });
+        // } catch (error) {
+        //   res.status(500).send({
+        //     message: "Failed to update room images",
+        //     status: 500,
+        //     data: error,
+        //   });
+        // }
       });
     } catch (error) {
       res.status(500).send({
@@ -96,13 +98,15 @@ module.exports = {
       });
     }
   },
+
+  // update images
   roomImageUpdate: function (req, res) {
     try {
       const multi_upload = multer({
         storage: imageMiddleware.image.storage(),
         allowedImage: imageMiddleware.image.allowedImage,
         limits: { fileSize: 1 * 1024 * 1024 }, // 1M
-      }).array("roomImage", 5);
+      }).array("roomImage", 10);
       // Xóa các ảnh cũ trong thư mục public/images liên quan đến phòng
 
       multi_upload(req, res, async function (err) {
@@ -132,7 +136,11 @@ module.exports = {
           }
           return;
         } else {
-          const files = req.files;
+          const promises = [];
+          const files = JSON.parse(req.body.roomImage);
+
+          console.log('files', files, req.body.roomImage)
+          const roomId = req.body.id;
 
           if (!files || files.length === 0) {
             return res.status(400).send({
@@ -140,21 +148,38 @@ module.exports = {
               status: 400,
             });
           }
-          console.log("files", files);
 
-          const promises = [];
-          // files.map(async (file) => {
-          //   return new Promise((resolve, reject) => {
-          //     // Bước 1: Xóa tất cả các ảnh trong thư mục "public/images" có room_id trùng với room_id cần cập nhật
-          //     const imageDir = `public/images}`;
-          //     if (fs.existsSync(imageDir)) {
-          //       fs.readdirSync(imageDir).forEach((f) => {
-          //         const filePath = `${imageDir}/${f}`;
-          //         fs.unlinkSync(filePath); // Xóa tệp ảnh
-          //       });
-          //     }
+         
 
-          //     RoomImage.deleteImagesByRoomId(room_id, function (err, data) {
+          // RoomImage.deleteImagesByRoomId(roomId, (err, data) => {
+          //   console.log("log", err, data);
+          // });
+
+          // for (const file of files) {
+          //   // Ảnh ở đây là dưới dạng base64, bạn có thể giữ nó như vậy
+          //   let dataImage = file.path;
+          //   try {
+          //     // Tải ảnh lên Cloudinary hoặc nơi lưu trữ tương tự
+          //     const result = await cloudinary.uploader.upload(
+          //       `G:/ProjectHou/images/p1/${dataImage}`,
+          //       {
+          //         // Cấu hình Cloudinary nếu cần
+          //       }
+          //     );
+          //     dataImage = result.url;
+          //   } catch (err) {
+          //     console.log("Error uploading to Cloudinary:", err);
+          //   }
+
+          //   const inputValues = {
+          //     name: file.path,
+          //     data: dataImage,
+          //     room_id: roomId,
+          //     createdAt: new Date(),
+          //   };
+
+          //   const promise = new Promise((resolve, reject) => {
+          //     RoomImage.create(inputValues, (err, data) => {
           //       if (err) {
           //         reject(err);
           //       } else {
@@ -162,50 +187,23 @@ module.exports = {
           //       }
           //     });
           //   });
-          // });
 
-          // Bước 2: Xóa tất cả các ảnh có room_id trùng với room_id cần cập nhật trong cơ sở dữ liệu
+          //   promises.push(promise);
+          // }
 
-          // Bước 3: Thêm mới ảnh
-          files.forEach((file) => {
-            return new Promise((resolve, reject) => {
-              const inputValues = {
-                name: file.originalname,
-                type: file.mimetype,
-                data: file.size,
-                room_id: room_id,
-                updatedAt: new Date(),
-              };
-
-              const promise = RoomImage.create(
-                inputValues,
-                function (err, data) {
-                  if (err) {
-                    reject(err);
-                  } else {
-                    resolve(data);
-                  }
-                }
-              );
-
-              promises.push(promise);
-            });
-          });
-
-          try {
-            const createdImages = await Promise.all(promises);
-            res.status(200).send({
-              message: "Cập nhật ảnh phòng thành công",
-              status: 200,
-              data: createdImages,
-            });
-          } catch (error) {
-            res.status(500).send({
-              message: "Cập nhật ảnh phòng thất bại",
-              status: 500,
-              data: error,
-            });
-          }
+          // try {
+          //   await Promise.all(promises);
+          //   res.status(200).send({
+          //     message: "Room images updated successfully",
+          //     status: 200,
+          //   });
+          // } catch (error) {
+          //   res.status(500).send({
+          //     message: "Failed to update room images",
+          //     status: 500,
+          //     data: error,
+          //   });
+          // }
         }
       });
     } catch (error) {

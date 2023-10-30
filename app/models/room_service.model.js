@@ -53,5 +53,15 @@ RoomService.update = (id, data, result) => {
     );
 };
 
+RoomService.deleteServiceByRoomId = (room_id, callback) => {
+  const query = 'DELETE FROM room_service WHERE room_id = ?';
+  sql.query(query, [room_id], (err, result) => {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, result);
+    }
+  });
+};
 
 module.exports = RoomService;

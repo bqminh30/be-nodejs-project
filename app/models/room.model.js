@@ -1,6 +1,6 @@
 const sql = require("../config/db.js");
-const Service = require("./service.model")
-const Room_Image = require("./room_image.model")
+const Service = require("./service.model");
+const Room_Image = require("./room_image.model");
 
 const currentDate = new Date();
 // constructor
@@ -34,13 +34,11 @@ Rooms.createRoom = (newRoom, result) => {
     }
 
     console.log("created room: ", { id: res.insertId, ...newRoom });
-    result(null, { id: res.insertId,image:res.image, ...newRoom });
+    result(null, { id: res.insertId, image: res.image, ...newRoom });
   });
 };
 
-Rooms.createRoomDeatil = (data, result) => {
-  
-}
+Rooms.createRoomDeatil = (data, result) => {};
 
 Rooms.updateRoomById = (id, value, result) => {
   sql.query(
@@ -57,7 +55,7 @@ Rooms.updateRoomById = (id, value, result) => {
       value.status,
       value.label,
       value.isLiked,
-      JSON.stringify(value.image),
+      value.image,
       value.voucher_id,
       value.type_room_id,
       value.updatedAt,
@@ -71,7 +69,7 @@ Rooms.updateRoomById = (id, value, result) => {
         return;
       }
       console.log("updated room: ", { id: id, ...value });
-      result({ id: id,image:image, ...value });
+      result({ id: id, ...value });
     }
   );
 };
@@ -133,18 +131,20 @@ Rooms.updatePriceSale = (newPrice, newVoucherId, roomIdToUpdate, result) => {
 
 Rooms.findRoomById = (id, result) => {
   sql.query(
-    `SELECT r.* , 
-        CONCAT('[', GROUP_CONCAT('{"id":', s.id, ',"name":"', s.name, '"}' SEPARATOR ','), ']') AS service,
-        room_image.roomImages
-        FROM room r 
-          LEFT JOIN room_service rs ON r.id = rs.room_id 
-          LEFT JOIN service s ON rs.service_id = s.id 
-          LEFT JOIN (
-            SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', room_image.id, ',"name":"', room_image.data, '" }' SEPARATOR ','), ']') AS roomImages
-        FROM room_image
-          GROUP BY room_id
-        ) room_image ON room_image.room_id = r.id WHERE r.id = ${id}
+    `SELECT r.*,
+    CONCAT('[', IFNULL(GROUP_CONCAT(DISTINCT s.id ORDER BY s.id SEPARATOR ','), ''), ']') AS service,
+    IFNULL(room_image.roomImages, '[]') AS roomImages
+    FROM room r
+    LEFT JOIN room_service rs ON r.id = rs.room_id
+    LEFT JOIN service s ON rs.service_id = s.id
+    LEFT JOIN (
+     SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', id, ',"name":"', data, '" }' SEPARATOR ','), ']') AS roomImages
+     FROM room_image
+     GROUP BY room_id
+    ) room_image ON room_image.room_id = r.id
+    WHERE r.id = ${id}
     GROUP BY r.id;
+
     `,
     (err, res) => {
       if (err) {
@@ -154,12 +154,19 @@ Rooms.findRoomById = (id, result) => {
       }
 
       if (res.length) {
-        const resultServices = JSON.parse(res[0].service)
-        const resultImages = JSON.parse(res[0].roomImages) 
+        const resultServices = JSON.parse(res[0].service);
+        const resultImages = JSON.parse(res[0].roomImages);
+
+        const dataWithImageArr = {
+          ...res[0], // Copy the existing properties from res[0]
+          roomImages: resultImages, // Add the new 'imageArr' field
+          service: resultServices, // Add the new 'imageArr' field
+        };
+
         result(null, {
-          data: res[0],
+          data: dataWithImageArr,
           services: resultServices,
-          images: resultImages
+          images: resultImages,
         });
         return;
       }
@@ -170,7 +177,7 @@ Rooms.findRoomById = (id, result) => {
 
 Rooms.getAll = (title, result) => {
   let query = `SELECT r.*, 
-  CONCAT('[', GROUP_CONCAT('{"id":', s.id, ',"name":"', s.name, '"}' SEPARATOR ','), ']') AS service,
+  CONCAT('[', GROUP_CONCAT('{"value":', s.id, ',"label":"', s.name, '"}' SEPARATOR ','), ']') AS service,
   room_image.roomImages
 FROM room r 
 LEFT JOIN room_service rs ON r.id = rs.room_id 
@@ -219,5 +226,4 @@ Rooms.getRoomsByRoomTypeId = (id, result) => {
     }
   });
 };
-
 module.exports = Rooms;

@@ -38,6 +38,8 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to server." });
 });
 
+
+
 // cloudinary configuration
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
@@ -58,6 +60,15 @@ require("./app/routes/orders.routes.js")(app);
 require("./app/routes/room_service.routes.js")(app);
 require("./app/routes/room_image.routes.js")(app);
 app.use("/api/facilities", facilitiesRoutes);
+
+app.post("/delete-image",async (req, res) => {
+  await cloudinary.uploader
+  .destroy('pikcrssd0fhjlo3oj57q',
+  {
+    invalidate: true
+  },
+  function(error, result){console.log(result, ' err', error);})
+})
 
 // set port, listen for requests
 const PORT = process.env.PORT || 6969;
