@@ -35,8 +35,8 @@ Customer.regiser = (newcustomer, result) => {
               newcustomer.fullname,
               newcustomer.email,
               newcustomer.password,
-              newcustomer.createdAt,
-              newcustomer.updatedAt
+              new Date(),
+              new Date()
             ],
             (err, res) => {
               if (err) {
@@ -60,7 +60,6 @@ Customer.regiser = (newcustomer, result) => {
   );
 };
 Customer.getCustomerByEmail = (email) => {
-  console.log('email', email)
   return new Promise((resolve, reject) => {
     sql.query("SELECT * FROM customer WHERE email = ?", email, (error, res) => {
       if (error) {

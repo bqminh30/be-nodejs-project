@@ -18,18 +18,12 @@ const Employee = function (employee) {
 };
 
 Employee.regiser = (newEmployee, result) => {
-  // if (newEmployee.role_id !== 2) {
-  //   return result({
-  //     status: 403,
-  //     message: "Only admin users can create employees with the 'staff' role.",
-  //   }, null);
-  // }
-
   sql.query(
     "SELECT COUNT(*) AS cnt FROM employee WHERE email = ? ",
     newEmployee.email,
     function (err, data) {
       if (err) {
+        console.log('errr1', err)
         result(err, null);
         return;
       } else {
@@ -41,10 +35,17 @@ Employee.regiser = (newEmployee, result) => {
           return;
         } else {
           sql.query(
-            "INSERT INTO employee (fullname, email, passwordHash, role_id) VALUES (?,?,?, 1)",
-            [newEmployee.fullname, newEmployee.email, newEmployee.password],
+            `
+            INSERT INTO employee (fullname,phonenumber,code, email, passwordHash,address, birthday, avatar,status, role_id, createdAt, updatedAt) 
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+            `,
+            [newEmployee.fullname, newEmployee.phonenumber, newEmployee.code,
+              newEmployee.email, newEmployee.password, newEmployee.address,
+              newEmployee.birthday, newEmployee.dataImage, newEmployee.status,
+              newEmployee.role_id, new Date(), new Date()],
             (err, res) => {
               if (err) {
+                console.log('errr2', err)
                 result({
                   status: 400,
                   message: `Lỗi ${err}`,

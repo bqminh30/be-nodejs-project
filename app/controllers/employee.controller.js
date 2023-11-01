@@ -3,59 +3,103 @@ var imageMiddleware = require("../middleware/image-middleware");
 const jsonwebtoken = require("jsonwebtoken");
 const Employee = require("../models/employee.model.js");
 const { hashSync, genSaltSync, compareSync } = require("bcrypt");
-const jwtHelper = require("../helpers/jwtHelper");
-
+var imageMiddleware = require("../middleware/image-middleware");
+var multer = require("multer");
+var cloudinary = require("cloudinary").v2;
 
 exports.register = (req, res, next) => {
-  
-  try {
-    const fullname = req.body.fullname;
-    const email = req.body.email;
-    const role_id = req.body.role_id;
-    let password = req.body.passwordHash;
-
-    if (!fullname || !email || !password) {
-      res.status(400).send({
-        message: "Value not empty!",
-      });
-      return;
-    }
-    const salt = genSaltSync(10);
-    password = hashSync(password, salt);
-
-    const data = {
-      fullname,
-      email,
-      password,
-      role_id,
-      createdAt: new Date()
-    };
-
-    Employee.regiser(data, (err, data) => {
-      if (err)
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while creating the Employee.",
-        });
-      else {
-        const jsontoken = jsonwebtoken.sign(
-          { data: data },
-          process.env.JWT_SECRET,
-          { expiresIn: "1d" }
-        );
-        res.cookie("token", jsontoken, {
-          httpOnly: true,
-          secure: true,
-          SameSite: "strict",
-          expires: new Date(Number(new Date()) + 30 * 24 * 60 * 60 * 1000),
-        }); //we add secure: true, when using https.
-
-        res.send({ token: jsontoken, data: data });
-      }
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!",
     });
-  } catch {
-    console.log("errrrrr");
   }
+  // Create a TypeRoom
+  var upload = multer({
+    storage: imageMiddleware.image.storage(),
+    allowedImage: imageMiddleware.image.allowedImage,
+  }).single("image");
+
+  upload(req, res, async function (err) {
+    if (err instanceof multer.MulterError) {
+      res.send(err);
+    } else if (err) {
+      res.send(err);
+    }else {
+      try {
+       
+        let avatar = req.body.image;
+        let statusJson = req.body.status;
+        const imagePath = JSON.parse(avatar);
+        const statusPath = JSON.parse(statusJson);
+        
+        let dataImage = "";
+        await cloudinary.uploader
+          .upload(
+            imagePath
+              ? `G:/ProjectHou/images/p2/${imagePath.path}`
+              : req.body.image
+          )
+          .then((result) => (dataImage = result.url))
+          .catch((err) => console.log("err", err));
+
+         
+
+        const fullname = req.body.fullname || '';
+        const email = req.body.email || '';
+        const phonenumber = req.body.phonenumber || '';
+        const code = req.body.code || '';
+        const address = req.body.address || '';
+        const birthday = req.body.birthday || '';
+        const status = statusPath || '';
+        const role_id = req.body.role_id || null;
+        let password = req.body.password;
+    
+        const salt = genSaltSync(10);
+        password = hashSync(password, salt);
+        
+        const data = {
+          fullname,
+          email,
+          phonenumber,
+          code,
+          dataImage,
+          address,
+          birthday,
+          password,
+          status,
+          role_id,
+        };
+    
+       
+        Employee.regiser(data, (err, data) => {
+          if (err)
+            res.status(500).send({
+              message:
+                err.message || "Some error occurred while creating the Employee.",
+            });
+          else {
+            const jsontoken = jsonwebtoken.sign(
+              { data: data },
+              process.env.JWT_SECRET,
+              { expiresIn: "1d" }
+            );
+            res.cookie("token", jsontoken, {
+              httpOnly: true,
+              secure: true,
+              SameSite: "strict",
+              expires: new Date(Number(new Date()) + 30 * 24 * 60 * 60 * 1000),
+            }); //we add secure: true, when using https.
+    
+            res.status(200).send({ token: jsontoken, data: data });
+          }
+        });
+      } catch(err) {
+        // Handle the error, such as sending an error response
+        res.status(400).send({ message: err });
+      }
+    }
+  });
+  
 };
 
 exports.login = async (req, res, next) => {
