@@ -138,8 +138,6 @@ module.exports = {
         } else {
           const promises = [];
           const files = JSON.parse(req.body.roomImage);
-
-          console.log('files', files, req.body.roomImage)
           const roomId = req.body.id;
 
           if (!files || files.length === 0) {
@@ -149,61 +147,70 @@ module.exports = {
             });
           }
 
-         
 
-          // RoomImage.deleteImagesByRoomId(roomId, (err, data) => {
-          //   console.log("log", err, data);
-          // });
+          for (const file of files) {
+            if (file?.path?.includes("res.cloud")) {
+              // Xử lý ảnh có đường dẫn "res.cloud" (không cần thay đổi)
+              const inputValues = {
+                name: file.path, // Tên ảnh không thay đổi
+                data: file.path, // Dữ liệu ảnh không thay đổi
+                room_id: roomId,
+                createdAt: new Date(),
+              };
+              const promise = new Promise((resolve, reject) => {
+                RoomImage.create(inputValues, (err, data) => {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    resolve(data);
+                  }
+                });
+              });
+              promises.push(promise);
+            } else if (file.preview?.startsWith("blob:")) {
+              // Xử lý ảnh có đường dẫn "blob" (đưa ảnh lên Cloud và lưu vào CSDL)
+              try {
+                const result = await cloudinary.uploader.upload(
+                  `G:/ProjectHou/images/p1/${file.path}`,
+                  {
+                    // Cấu hình Cloudinary nếu cần
+                  }
+                );
+                const inputValues = {
+                  name: result.url, // Lưu đường dẫn trả về từ Cloudinary
+                  data: result.url, // Lưu đường dẫn trả về từ Cloudinary
+                  room_id: roomId,
+                  createdAt: new Date(),
+                };
+                const promise = new Promise((resolve, reject) => {
+                  RoomImage.create(inputValues, (err, data) => {
+                    if (err) {
+                      reject(err);
+                    } else {
+                      resolve(data);
+                    }
+                  });
+                });
+                promises.push(promise);
+              } catch (err) {
+                console.log("Error uploading to Cloudinary:", err);
+              }
+            }
+          }
 
-          // for (const file of files) {
-          //   // Ảnh ở đây là dưới dạng base64, bạn có thể giữ nó như vậy
-          //   let dataImage = file.path;
-          //   try {
-          //     // Tải ảnh lên Cloudinary hoặc nơi lưu trữ tương tự
-          //     const result = await cloudinary.uploader.upload(
-          //       `G:/ProjectHou/images/p1/${dataImage}`,
-          //       {
-          //         // Cấu hình Cloudinary nếu cần
-          //       }
-          //     );
-          //     dataImage = result.url;
-          //   } catch (err) {
-          //     console.log("Error uploading to Cloudinary:", err);
-          //   }
-
-          //   const inputValues = {
-          //     name: file.path,
-          //     data: dataImage,
-          //     room_id: roomId,
-          //     createdAt: new Date(),
-          //   };
-
-          //   const promise = new Promise((resolve, reject) => {
-          //     RoomImage.create(inputValues, (err, data) => {
-          //       if (err) {
-          //         reject(err);
-          //       } else {
-          //         resolve(data);
-          //       }
-          //     });
-          //   });
-
-          //   promises.push(promise);
-          // }
-
-          // try {
-          //   await Promise.all(promises);
-          //   res.status(200).send({
-          //     message: "Room images updated successfully",
-          //     status: 200,
-          //   });
-          // } catch (error) {
-          //   res.status(500).send({
-          //     message: "Failed to update room images",
-          //     status: 500,
-          //     data: error,
-          //   });
-          // }
+          try {
+            await Promise.all(promises);
+            res.status(200).send({
+              message: "Room images updated successfully",
+              status: 200,
+            });
+          } catch (error) {
+            res.status(500).send({
+              message: "Failed to update room images",
+              status: 500,
+              data: error,
+            });
+          }
         }
       });
     } catch (error) {

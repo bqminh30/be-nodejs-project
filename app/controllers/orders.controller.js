@@ -69,15 +69,19 @@ exports.getOrderStatusById = async (req, res) => {
 
 exports.updateOrderStatus = (req, res) => {
   // Assuming you have the 'employee_id' and 'order_id' in the request body or parameters
-  const { employee_id, order_id } = req.body; // You may need to adjust this based on your actual request structure
+  const { user, data } = req.body; // You may need to adjust this based on your actual request structure
+
+  const employee_id = user.id;
+  const order_id  = data.id
 
   // Validate that both 'employee_id' and 'order_id' are provided
   if (!employee_id || !order_id) {
     return res.status(400).json({ message: "Both 'employee_id' and 'order_id' are required." });
   }
+  
 
   // Call the 'Orders.updateStatusOrderById' function with the employee and order IDs
-  Orders.updateStatusOrderById({ id: order_id, employee_id }, (err, result) => {
+  Orders.updateStatusOrderById({ id: order_id,status: data.status, employee_id }, (err, result) => {
     if (err) {
       return res.status(500).json({ message: "Error updating order status.", error: err.message });
     }
@@ -91,3 +95,7 @@ exports.updateOrderStatus = (req, res) => {
     return res.status(200).json({ message: "Order status updated successfully." });
   });
 };
+
+exports.cronJobOrder = (req, res) => {
+  console.log('runnnn')
+}

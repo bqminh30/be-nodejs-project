@@ -77,23 +77,24 @@ Orders.findById = (id, result) => {
       "room_name":"', r.name, '"}' SEPARATOR ','), ']') AS od_detail,
       c.fullname,
       c.email,
-      c.phonenumber
+      c.phonenumber,
+      emp.fullname as emp_fullname,
+      emp.email as emp_email
     FROM orders od
       LEFT JOIN order_detail od_detail ON od_detail.order_id = od.id 
       LEFT JOIN room r ON r.id = od_detail.room_id
       LEFT JOIN customer c ON c.id = od.customer_id
+      LEFT JOIN employee emp ON emp.id = od.employee_id
     WHERE od.id = ${id}
       GROUP BY od.id
  `,
     (err, res) => {
       if (err) {
-        console.log("error: ", err);
         result(err, null);
         return;
       }
 
       if (res.length) {
-        console.log("found order id: ", res[0]);
         const result_order = JSON.parse(res[0].od_detail);
         result(null, {
           data: res[0],
@@ -155,8 +156,8 @@ Orders.updateStatusOrderById = (data, result) => {
 
       // Employee exists, proceed with updating the order status
       sql.query(
-        "UPDATE orders SET status = 1, employee_id = ? WHERE id = ?",
-        [data.employee_id, data.id],
+        "UPDATE orders SET status = ?, employee_id = ?, updatedAt =? WHERE id = ?",
+        [data.status, data.employee_id,new Date(), data.id],
         (err, res) => {
           if (err) {
             result(null, err);

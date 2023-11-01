@@ -89,14 +89,15 @@ Vouchers.updateShow = (id, data, result) => {
 
 Vouchers.getAll = (result) => {
   sql.query = ("SELECT * FROM vouchers", (err, res) => {
+    console.log('resr',err, res)
     if(err){
-      result({
+      result(null,{
         status: 400,
         message: "Loi select vouchers"
       });
       return;
     }
-    result(null, res);
+    result(res);
   })
 }
 
@@ -119,15 +120,17 @@ Vouchers.findById = (id, result) => {
   });
 };
 
-Vouchers.getAllPublished = result => {
-  sql.query("SELECT * FROM vouchers WHERE show = 1", (err, res) => {
-    if (err) {
-      console.log("error: ", err);
-      result(null, err);
+Vouchers.getAllPublished = (name, result) => {
+  sql.query("SELECT * FROM vouchers WHERE isShow = 1 ;", (err, res) => {
+    if(err){
+      result(err,null);
       return;
     }
-
-    console.log("type_service: ", res);
+    if (res.affectedRows == 0) {
+      // not found Service with the id
+      result({ kind: "not_found" }, null);
+      return;
+    }
     result(null, res);
   });
 };
@@ -141,6 +144,21 @@ Vouchers.delete = (id) => {
         return resolve()
       }
     })
+  })
+}
+
+Vouchers.cronJobUpdateShow = () => {
+  const query =  `
+  UPDATE vouchers
+    SET vouchers.isShow = 0
+  WHERE vouchers.endDate > ?
+  `
+  sql.query(query,[new Date()], (err, res) => {
+    if(err){
+      console.log('err cron job')
+    }else {
+      console.log('runn cron job')
+    }
   })
 }
 

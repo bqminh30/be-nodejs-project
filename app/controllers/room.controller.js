@@ -125,6 +125,7 @@ exports.updateRoom = (req, res) => {
           title: req.body.title,
           description: req.body.description,
           price: req.body.price,
+          priceSale: req.body.priceSale,
           numberBed: req.body.numberBed,
           numberPeople: req.body.numberPeople,
           status: req.body.status,
@@ -142,10 +143,19 @@ exports.updateRoom = (req, res) => {
               message: "Error updating room with id " + err,
             });
           } else
-            res.status(200).send({
-              data: data,
-              message: "Cập nhật phòng thành công",
-            });
+
+          Room.updateVoucherCronJob((data,err) => {
+            if (err) {
+              res.status(500).send({
+                message: "Error updating room with id " + err,
+              });
+            }else {
+              res.status(200).send({
+                data: data,
+                message: "Cập nhật phòng thành công",
+              });
+            }
+          })
         });
       }
     });
@@ -226,3 +236,4 @@ exports.delete = (req, res) => {
     } else res.send({ message: `TypeRoom was deleted successfully!` });
   });
 };
+

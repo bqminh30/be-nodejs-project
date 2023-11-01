@@ -63,4 +63,23 @@ module.exports = {
         });
     });
   },
+
+  voucherAll: function(req, res) {
+    const name = req.query.name;
+    try {
+      Voucher.getAllPublished(name,(err, data) => {
+        if (err)
+          res.status(500).send({
+            message: err.message || "Some error occurred while retrieving Voucher.",
+          });
+        else res.status(200).send(data);
+      });
+    }
+      catch (error) {
+        res
+          .status(500)
+          .json({ message: "An error get orders", error: error.message });
+      }
+     
+  }
 };

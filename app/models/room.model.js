@@ -25,6 +25,50 @@ const Rooms = function (value) {
   this.updatedAt = new Date();
 };
 
+Rooms.updateVoucherCronJob = (result) => {
+  const query = 
+  ` UPDATE room
+    JOIN vouchers ON room.voucher_id = vouchers.id
+    SET room.priceSale = room.price * ((100 - vouchers.value) / 100)
+    WHERE room.voucher_id IS NOT NULL
+      AND vouchers.startDate <= ?
+      AND vouchers.endDate >= ?
+      AND vouchers.isShow = 1;
+  `;
+
+  sql.query(query,[ new Date(), new Date() ], (err, res) => {
+    if(err){
+      console.log('errr',err)
+      result(err, null)
+      return;
+    }else {
+      console.log('runn')
+      result(res)
+    }
+  })
+}
+
+Rooms.updateVoucherCronJob_2 = () => {
+  const query = 
+  ` UPDATE room
+    JOIN vouchers ON room.voucher_id = vouchers.id
+    SET room.priceSale = room.price * ((100 - vouchers.value) / 100)
+    WHERE room.voucher_id IS NOT NULL
+      AND vouchers.startDate <= ?
+      AND vouchers.endDate >= ?
+      AND vouchers.isShow = 1;
+  `;
+
+  sql.query(query,[ new Date(), new Date() ], (err, res) => {
+    if(err){
+      console.log('errr',err)
+    }else {
+      console.log('runn')
+    }
+  })
+}
+
+
 Rooms.createRoom = (newRoom, result) => {
   sql.query("INSERT INTO room SET ?", newRoom, (err, res) => {
     if (err) {
@@ -43,13 +87,14 @@ Rooms.createRoomDeatil = (data, result) => {};
 Rooms.updateRoomById = (id, value, result) => {
   sql.query(
     "UPDATE room SET " +
-      "name=?, title=?, description=?, price=?, numberBed =?, numberPeople =?, " +
+      "name=?, title=?, description=?, price=?,priceSale=?, numberBed =?, numberPeople =?, " +
       "status= ?,label=?, isLiked=?, image=?,voucher_id=?,type_room_id=?, updatedAt=? WHERE id = ?",
     [
       value.name,
       value.title,
       value.description,
       value.price,
+      value.priceSale,
       value.numberBed,
       value.numberPeople,
       value.status,
@@ -63,12 +108,9 @@ Rooms.updateRoomById = (id, value, result) => {
     ],
     (err, res) => {
       if (err) {
-        console.log("error: ", err);
         result(null, err);
-
         return;
       }
-      console.log("updated room: ", { id: id, ...value });
       result({ id: id, ...value });
     }
   );
@@ -226,4 +268,7 @@ Rooms.getRoomsByRoomTypeId = (id, result) => {
     }
   });
 };
+
+
+
 module.exports = Rooms;
