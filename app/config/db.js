@@ -1,12 +1,17 @@
 const mysql = require("mysql2");
 
 var connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE_NAME,
-  
+  host: 'sql.freedb.tech',
+  port: '3306',
+  user: 'freedb_quangminh',
+  password: '9ksDR8#HG?eBRF*',
+  database: 'freedb_bookingdb',
+//   DB_HOST=sql.freedb.tech
+// DB_DATABASE_NAME=freedb_bookingdb
+// DB_USERNAME=freedb_quangminh
+// DB_PASSWORD="9ksDR8#HG?eBRF*"
+// DB_PORT=3306
+// DB_DIALECT=mysql
 });
 connection.connect(function (err) {
   if (err) {
