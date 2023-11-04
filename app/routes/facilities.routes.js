@@ -9,6 +9,8 @@ const facilitiesController = require('../controllers/facilities.controller');
 
 router.get('/create', facilitiesController.facilitiesUploadForm)
 router.post('/create', facilitiesController.facilitiesStorage)
-router.put('/update/:id', facilitiesController.updateFacility)
+router.put('/update', facilitiesController.updateFacility)
+
+router.get('/', facilitiesController.facilitiesGetById)
 
 module.exports = router;

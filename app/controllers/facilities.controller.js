@@ -1,4 +1,5 @@
 var multer = require("multer");
+var cloudinary = require("cloudinary").v2;
 var imageMiddleware = require("../middleware/image-middleware");
 const Facilities = require("../models/facilities.model.js");
 const fs = require("fs");
@@ -41,6 +42,16 @@ module.exports = {
       }
     });
   },
+  facilitiesGetById: function(req, res) {
+    Facilities.getById((err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving TypeRooms."
+        });
+      else res.status(200).send(data);
+    });
+  },
   updateFacility: function (req, res) {
     try {
       var upload = multer({
@@ -48,16 +59,32 @@ module.exports = {
         allowedImage: imageMiddleware.image.allowedImage,
       }).single("image");
       var inputValues = {};
-      upload(req, res, function (err) {
+      upload(req, res, async function (err) {
         if (err instanceof multer.MulterError) {
           res.send(err);
         } else if (err) {
           res.send(err);
         } else {
+          let dataImage = "";
           // store image in database
-          var imageName = req.file.originalname;
+          let imageName = req.body.image;
+          const containsCloudinary = imageName.indexOf("res.cloudinary.com") !== -1;
+          if(containsCloudinary){
+            dataImage = imageName
+          }else {
+            const imagePath = JSON.parse(imageName);
+            await cloudinary.uploader
+            .upload(
+              imagePath.path
+                ? `G:/ProjectHou/images/p1/${imagePath.path}`
+                : req.body.image
+            )
+            .then((result) => (dataImage = result.url))
+            .catch((err) => console.log("err", err));
+          }
+
           inputValues = {
-            image: imageName,
+            image: dataImage,
             name: req.body.name,
             location: req.body.location,
             phone: req.body.phone,

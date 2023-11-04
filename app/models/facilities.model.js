@@ -24,9 +24,20 @@ Facilities.create = (newFacilities, result) => {
   });
 };
 
+Facilities.getById = (result) => {
+  sql.query(
+    `SELECT * FROM facilities WHERE id = 9`, (err, res) => {
+      if(err){
+        return result(null, err)
+      }
+      return result(null, res[0])
+    }
+  )
+}
+
 Facilities.updateFacility = (id, facilities, result) => {
   sql.query(
-    "UPDATE facilities SET name=?, location=?, phone=?, logo=?, title=?, image=?, updatedAt =? WHERE id = ?",
+    `UPDATE facilities SET name=?, location=?, phone=?, logo=?, title=?, image=?, updatedAt =? WHERE id = ${9}`,
     [
       facilities.name,
       facilities.location,
@@ -34,8 +45,7 @@ Facilities.updateFacility = (id, facilities, result) => {
       facilities.logo,
       facilities.title,
       facilities.image,
-      facilities.updatedAt,
-      id,
+      new Date(),
     ],
     (err, res) => {
       if (err) {

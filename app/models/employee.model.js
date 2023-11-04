@@ -96,7 +96,7 @@ Employee.checkEmailCodeExist = (email, code, userId) => {
 Employee.updateProfile = (data, userId) => {
   return new Promise((resolve, reject) => {
     sql.query(
-      "UPDATE employee SET fullname = ?,phonenumber = ?, status = ?, email = ?, code = ?, address = ?, birthday = ?, avatar = ?, role_id = ?, createdAt =? WHERE id = ?",
+      "UPDATE employee SET fullname = ?,phonenumber = ?, status = ?, email = ?, code = ?, address = ?, birthday = ?, avatar = ?, role_id = ?, updatedAt =? WHERE id = ?",
       [
         data.fullname,
         data.phonenumber,
@@ -107,7 +107,7 @@ Employee.updateProfile = (data, userId) => {
         data.birthday,
         data.avatar,
         data.role_id,
-        data.createAt,
+        new Date(),
         userId,
       ],
       (error, res) => {
@@ -121,6 +121,40 @@ Employee.updateProfile = (data, userId) => {
   });
 };
 
+Employee.updateProfileQuick = (data, userId, result) => {
+
+    sql.query(
+      "UPDATE employee SET fullname = ?,phonenumber = ?, status = ?, email = ?, code = ?, address = ?, birthday = ?, role_id = ?, updatedAt =? WHERE id = ?",
+      [
+        data.fullname,
+        data.phonenumber,
+        data.status,
+        data.email,
+        data.code,
+        data.address,
+        data.formattedDate,
+        data.role_id,
+        new Date(),
+        userId,
+      ],
+      (error, res) => {
+        if (error) {
+          return result(null, err);
+        }
+        return result(null, res);
+      }
+    );
+};
+
+Employee.getAll = (result) => {
+  sql.query("SELECT *, DATE_FORMAT(birthday, '%d/%m/%Y') AS formatted_birthday FROM employee", (err, res) => {
+    if (err) {
+      result(null, err);
+      return;
+    }
+    result(null, res);
+  });
+}
 module.exports = Employee;
 
 
