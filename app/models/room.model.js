@@ -1,6 +1,4 @@
 const sql = require("../config/db.js");
-const Service = require("./service.model");
-const Room_Image = require("./room_image.model");
 
 const currentDate = new Date();
 // constructor

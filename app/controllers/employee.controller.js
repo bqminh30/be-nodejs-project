@@ -127,10 +127,10 @@ exports.login = async (req, res, next) => {
           expires: new Date(Number(new Date()) + 30 * 24 * 60 * 60 * 1000),
         }); //we add secure: true, when using https.
 
-        res.send({ token: jsontoken, user: user });
+        res.status(200).send({ token: jsontoken, user: user });
       } else {
-        return res.status(400).send({
-          status: 400,
+        return res.status(500).send({
+          status: 500,
           message: "Invalid email or password",
         });
       }
