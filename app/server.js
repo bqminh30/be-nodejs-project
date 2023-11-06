@@ -8,9 +8,9 @@ const cors = require("cors");
 var cron = require('node-cron');
 const app = express();
 const cloudinary = require("cloudinary").v2;
-const facilitiesRoutes = require("./app/routes/facilities.routes");
-const {updateVoucherCronJob_2} = require('./app/models/room.model')
-const {cronJobUpdateShow} = require('./app/models/voucher.model')
+const facilitiesRoutes = require("./routes/facilities.routes.js");
+const {updateVoucherCronJob_2} = require('./models/room.model.js')
+const {cronJobUpdateShow} = require('./models/voucher.model.js')
 
 
 var corsOptions = {
@@ -43,17 +43,17 @@ cloudinary.config({
   secure: true,
 });
 
-require("./app/routes/typeroom.routes.js")(app);
-require("./app/routes/typeservice.routes.js")(app);
-require("./app/routes/service.routes.js")(app);
-require("./app/routes/employee.routes.js")(app);
-require("./app/routes/reviews.routes.js")(app);
-require("./app/routes/customer.routes.js")(app);
-require("./app/routes/voucher.routes.js")(app);
-require("./app/routes/room.routes.js")(app);
-require("./app/routes/orders.routes.js")(app);
-require("./app/routes/room_service.routes.js")(app);
-require("./app/routes/room_image.routes.js")(app);
+require("./routes/typeroom.routes.js")(app);
+require("./routes/typeservice.routes.js")(app);
+require("./routes/service.routes.js")(app);
+require("./routes/employee.routes.js")(app);
+require("./routes/reviews.routes.js")(app);
+require("./routes/customer.routes.js")(app);
+require("./routes/voucher.routes.js")(app);
+require("./routes/room.routes.js")(app);
+require("./routes/orders.routes.js")(app);
+require("./routes/room_service.routes.js")(app);
+require("./routes/room_image.routes.js")(app);
 app.use("/api/facilities", facilitiesRoutes);
 
 cron.schedule('0 0 */12 * *', () => {
