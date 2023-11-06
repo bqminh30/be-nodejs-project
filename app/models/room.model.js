@@ -1,4 +1,6 @@
 const sql = require("../config/db.js");
+const Service = require("./service.model");
+const Room_Image = require("./room_image.model");
 
 const currentDate = new Date();
 // constructor
@@ -243,7 +245,7 @@ GROUP BY r.id;
   sql.query(query, (err, res) => {
     if (err) {
       console.log("error: ", err);
-      result(err,null);
+      result(err, null);
       return;
     }
 
