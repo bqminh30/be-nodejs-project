@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = "https://project-be-nodejs-mysql.onrender.com"
+const API_URL = "https://be-nodejs-project.vercel.app"
 
 cloudinaryUpload = (fileToUpload) => {
     return axios.post(API_URL + '/cloudinary-upload', fileToUpload)
