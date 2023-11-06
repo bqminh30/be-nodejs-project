@@ -175,18 +175,26 @@ Rooms.findRoomById = (id, result) => {
   sql.query(
     `SELECT r.*,
     CONCAT('[', IFNULL(GROUP_CONCAT(DISTINCT s.id ORDER BY s.id SEPARATOR ','), ''), ']') AS service,
-    IFNULL(room_image.roomImages, '[]') AS roomImages
+    IFNULL(room_image.roomImages, '[]') AS roomImages,
+    IFNULL(service_data.service_data, '[]') AS service_data
+FROM room r
+LEFT JOIN room_service rs ON r.id = rs.room_id
+LEFT JOIN service s ON rs.service_id = s.id
+LEFT JOIN (
+    SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', id, ',"name":"', data, '" }' SEPARATOR ','), ']') AS roomImages
+    FROM room_image
+    GROUP BY room_id
+) room_image ON room_image.room_id = r.id
+LEFT JOIN (
+    SELECT r.id AS room_id, CONCAT('[', GROUP_CONCAT('{"id":', s.id, ',"name":"', s.name, '" }' SEPARATOR ','), ']') AS service_data
     FROM room r
     LEFT JOIN room_service rs ON r.id = rs.room_id
     LEFT JOIN service s ON rs.service_id = s.id
-    LEFT JOIN (
-     SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', id, ',"name":"', data, '" }' SEPARATOR ','), ']') AS roomImages
-     FROM room_image
-     GROUP BY room_id
-    ) room_image ON room_image.room_id = r.id
     WHERE r.id = ${id}
-    GROUP BY r.id;
-
+    GROUP BY r.id
+) service_data ON service_data.room_id = r.id
+WHERE r.id = ${id}
+GROUP BY r.id;
     `,
     (err, res) => {
       if (err) {
@@ -194,10 +202,13 @@ Rooms.findRoomById = (id, result) => {
         result(err, null);
         return;
       }
+      console.log('res', res)
 
       if (res.length) {
+        const resultServicesData = JSON.parse(res[0].service_data);
         const resultServices = JSON.parse(res[0].service);
         const resultImages = JSON.parse(res[0].roomImages);
+        
 
         const dataWithImageArr = {
           ...res[0], // Copy the existing properties from res[0]
@@ -207,8 +218,7 @@ Rooms.findRoomById = (id, result) => {
 
         result(null, {
           data: dataWithImageArr,
-          services: resultServices,
-          images: resultImages,
+          services: resultServicesData,
         });
         return;
       }
