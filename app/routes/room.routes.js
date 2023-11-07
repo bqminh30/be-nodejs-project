@@ -7,7 +7,7 @@ module.exports = (app) => {
   // Get All Room
   router.get("/", room.findAll);
   // Get Rooms Limit
-  router.get('/limit/:id', room.getLimit)
+  router.get('/limit/:id', room.findLimit)
   //Get a Room
   router.get('/:id',room.findRoomById)
   //Get Rooms by type Room id
