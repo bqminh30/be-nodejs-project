@@ -254,6 +254,34 @@ Rooms.getAll = (title, result) => {
   });
 };
 
+Rooms.getLimit = (id, result) => {
+  let query = `SELECT  r.*, 
+  CONCAT('[', GROUP_CONCAT('{"value":', s.id, ',"label":"', s.name, '"}' SEPARATOR ','), ']') AS service,
+  room_image.roomImages
+   FROM room r 
+    LEFT JOIN room_service rs ON r.id = rs.room_id 
+    LEFT JOIN service s ON rs.service_id = s.id 
+    LEFT JOIN (
+  SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', room_image.id, ',"name":"', room_image.data, '" }' SEPARATOR ','), ']') AS roomImages
+  FROM room_image
+  GROUP BY room_id
+    ) room_image ON room_image.room_id = r.id
+  GROUP BY r.id
+  ORDER BY r.rating DESC LIMIT ${id};
+`;
+
+sql.query(query, (err, res) => {
+if (err) {
+  console.log("error: ", err);
+  result(err, null);
+  return;
+}
+
+// console.log("rooms: ", res);
+result(null, res);
+});
+}
+
 Rooms.findByLabel = (data, result) => {
   sql.query(`SELECT * FROM room WHERE label = ${data}`, (err, res) => {
     if (err) {

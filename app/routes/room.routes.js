@@ -6,6 +6,8 @@ module.exports = (app) => {
   var router = require("express").Router();
   // Get All Room
   router.get("/", room.findAll);
+  // Get Rooms Limit
+  router.get('/limit/:id', room.getLimit)
   //Get a Room
   router.get('/:id',room.findRoomById)
   //Get Rooms by type Room id

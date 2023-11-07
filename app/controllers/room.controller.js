@@ -180,6 +180,18 @@ exports.findAll = (req, res) => {
   });
 };
 
+exports.findLimit = (req, res) => {
+  const id = req.params.id;
+
+  Room.getLimit(id, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving Room.",
+      });
+    else res.status(200).send(data);
+  });
+};
+
 // Find a single Room by Id
 exports.findRoomById = (req, res) => {
   Room.findRoomById(req.params.id, (err, data) => {
