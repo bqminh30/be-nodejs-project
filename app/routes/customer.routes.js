@@ -10,6 +10,8 @@ module.exports = app => {
 
   router.post("/logout", customer.logout);
 
+  router.get('/check-auth', customer.isAuth)
+
 
   app.use('/api/customer', router);
 };

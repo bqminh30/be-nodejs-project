@@ -184,3 +184,37 @@ exports.logout = async (req, res, next) => {
     })
   }
 }
+
+exports.isAuth = async (req, res, next) => {
+  try {
+    const tokenFromClient =
+      req.body.token || req.query.token || req.headers["authorization"];
+    if (tokenFromClient) {
+      if (!tokenFromClient) {
+        return res.status(403).send({ message: "No token provided!" });
+      }
+
+      const bearerToken = tokenFromClient.split(" ")[1];
+      const isCheckToken = jsonwebtoken.verify(
+        bearerToken,
+        process.env.JWT_SECRET
+      );
+      if (isCheckToken.data) {
+        return res.status(200).json({
+          user: isCheckToken.data,
+        });
+      }
+    } else {
+      // No token found in the request, return a 403 (Forbidden) status code
+      return res.status(403).json({
+        message: "No token provided.",
+      });
+    }
+  } catch (err) {
+    // Handle any other unexpected errors and return a 500 (Internal Server Error) status code
+    console.error(err);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
