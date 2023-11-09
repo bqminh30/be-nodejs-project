@@ -180,8 +180,37 @@ Orders.updateStatusOrderById = (data, result) => {
 
 Orders.widgetData = (result) => {
   let query = `
-    
+      SELECT
+      (
+          SELECT SUM(count)
+          FROM orders
+          WHERE DATE_FORMAT(createdDate, '%Y-%m') = DATE_FORMAT(CURRENT_DATE - INTERVAL 1 MONTH, '%Y-%m')
+      ) AS percent,
+      (
+          SELECT SUM(count)
+          FROM orders
+          WHERE createdDate <= CURRENT_DATE - INTERVAL 1 MONTH
+      ) AS total,
+      JSON_ARRAYAGG(SUM_count) AS chart,
+      JSON_ARRAYAGG(month) AS chart_month
+    FROM (
+      SELECT
+          DATE_FORMAT(createdDate, '%b') AS month,
+          SUM(count) AS SUM_count
+      FROM orders
+      WHERE createdDate >= DATE_SUB(LAST_DAY(CURRENT_DATE), INTERVAL 12 MONTH) 
+            AND createdDate <= LAST_DAY(CURRENT_DATE)
+      GROUP BY DATE_FORMAT(createdDate, '%b')
+    ) subquery
   `;
+  sql.query(query, (err, res)=> {
+    if(err){
+      console.log('err', err)
+      result(null, err)
+    }else {
+      result(null, res)
+    }
+  })
 }
 
 Orders.remove = (id, result) => {

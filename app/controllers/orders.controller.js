@@ -99,3 +99,20 @@ exports.updateOrderStatus = (req, res) => {
 exports.cronJobOrder = (req, res) => {
   console.log('runnnn')
 }
+
+exports.totalWidgetData = () => {
+  try {
+    Orders.widgetData((err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving Orders.",
+        });
+      else res.status(200).send(data);
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error get orders", error: error.message });
+  }
+}

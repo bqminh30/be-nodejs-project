@@ -16,6 +16,8 @@ module.exports = (app) => {
     
     //Update a new Room
     router.put("/status", orders.updateOrderStatus);
+
+    router.get('/widget-data-order', orders.totalWidgetData)
   
     app.use("/api/orders", router);
   };
