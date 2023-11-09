@@ -208,7 +208,7 @@ Orders.widgetData = (id,result) => {
       console.log('err', err)
       result(null, err)
     }
-    result(null, res)
+    result(null, res[0])
   })
 }
 
