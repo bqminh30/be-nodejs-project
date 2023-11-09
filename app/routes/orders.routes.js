@@ -10,14 +10,14 @@ module.exports = (app) => {
 
     // get a order by id
     router.get('/:id',orders.getOrderById)
+
+    router.post('/widget-order', orders.totalWidgetData)
   
     // get orders status
     router.get('/status/:id',orders.getOrderStatusById)
     
     //Update a new Room
     router.put("/status", orders.updateOrderStatus);
-
-    router.get('/widget-data-order', orders.totalWidgetData)
   
     app.use("/api/orders", router);
   };

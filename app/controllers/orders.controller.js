@@ -96,13 +96,9 @@ exports.updateOrderStatus = (req, res) => {
   });
 };
 
-exports.cronJobOrder = (req, res) => {
-  console.log('runnnn')
-}
-
-exports.totalWidgetData = () => {
+exports.totalWidgetData = (req, res) => {
   try {
-    Orders.widgetData((err, data) => {
+    Orders.widgetData(req.params.id,(err, data) => {
       if (err)
         res.status(500).send({
           message:
@@ -116,3 +112,8 @@ exports.totalWidgetData = () => {
       .json({ message: "An error get orders", error: error.message });
   }
 }
+
+exports.cronJobOrder = (req, res) => {
+  console.log('runnnn')
+}
+

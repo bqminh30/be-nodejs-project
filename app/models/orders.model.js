@@ -178,7 +178,7 @@ Orders.updateStatusOrderById = (data, result) => {
   );
 };
 
-Orders.widgetData = (result) => {
+Orders.widgetData = (id,result) => {
   let query = `
       SELECT
       (
@@ -201,15 +201,14 @@ Orders.widgetData = (result) => {
       WHERE createdDate >= DATE_SUB(LAST_DAY(CURRENT_DATE), INTERVAL 12 MONTH) 
             AND createdDate <= LAST_DAY(CURRENT_DATE)
       GROUP BY DATE_FORMAT(createdDate, '%b')
-    ) subquery
+    ) subquery;
   `;
   sql.query(query, (err, res)=> {
     if(err){
       console.log('err', err)
       result(null, err)
-    }else {
-      result(null, res)
     }
+    result(null, res)
   })
 }
 
