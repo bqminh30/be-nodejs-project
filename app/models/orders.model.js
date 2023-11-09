@@ -178,8 +178,14 @@ Orders.updateStatusOrderById = (data, result) => {
   );
 };
 
+Orders.widgetData = (result) => {
+  let query = `
+    
+  `;
+}
+
 Orders.remove = (id, result) => {
-  sql.query("DELETE FROM type_room WHERE id = ?", id, (err, res) => {
+  sql.query("DELETE FROM orders WHERE id = ?", id, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(null, err);

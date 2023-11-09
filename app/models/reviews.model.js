@@ -126,7 +126,7 @@ Reviews.createReview = (newReview, result) => {
 };
 
 Reviews.getAll = (room_id, result) => {
-  let query = `SELECT cus.fullname, cus.phonenumber, cus.email, reviews.content, reviews.image, reviews.rating, reviews.status FROM reviews
+  let query = `SELECT cus.fullname, cus.phonenumber, cus.email, reviews.content, reviews.image, reviews.rating, reviews.status, reviews.createdAt FROM reviews
   INNER JOIN customer cus ON cus.id = reviews.customer_id
 WHERE status = 1 AND room_id = ?`;
 
