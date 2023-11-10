@@ -14,7 +14,8 @@ const {cronJobUpdateShow} = require('./app/models/voucher.model.js')
 
 
 var corsOptions = {
-  origin: "http://localhost:8080",
+  origin: ["http://localhost:8080", "https://center-marriott-booking.vercel.app", "*"],
+  
   credentials: true, //access-control-allow-credentials:true
   optionSuccessStatus: 200,
 };
