@@ -250,11 +250,13 @@ Rooms.getAll = (title, result) => {
     console.log("rooms: ", res);
     if (res.length) {
       const resultImages = JSON.parse(res[0].roomImages);
+      const resultServices = JSON.parse(res[0].service);
       
 
       const dataWithImageArr = {
         ...res[0], // Copy the existing properties from res[0]
-        roomImages: resultImages, // Add the new 'imageArr' field
+        roomImages: resultImages, // Add the new 'imageArr' field\
+        service: resultServices
       };
 
       result(null, {
