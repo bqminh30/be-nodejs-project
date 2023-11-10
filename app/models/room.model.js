@@ -238,7 +238,7 @@ Rooms.getAll = (title, result) => {
       GROUP BY room_id
         ) room_image ON room_image.room_id = r.id
       GROUP BY r.id;
-`;
+  `;
 
   sql.query(query, (err, res) => {
     if (err) {
@@ -249,18 +249,19 @@ Rooms.getAll = (title, result) => {
 
     console.log("rooms: ", res);
     if (res.length) {
-      const resultImages = JSON.parse(res[0].roomImages);
-      const resultServices = JSON.parse(res[0].service);
-      
+      const roomsData = res.map((room) => {
+        const resultImages = JSON.parse(room.roomImages);
+        const resultServices = JSON.parse(room.service);
 
-      const dataWithImageArr = {
-        ...res[0], // Copy the existing properties from res[0]
-        roomImages: resultImages, // Add the new 'imageArr' field\
-        service: resultServices
-      };
+        return {
+          ...room,
+          roomImages: resultImages,
+          service: resultServices,
+        };
+      });
 
       result(null, {
-        data: dataWithImageArr,
+        data: roomsData,
       });
       return;
     }
