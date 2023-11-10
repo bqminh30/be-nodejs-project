@@ -82,8 +82,6 @@ Rooms.createRoom = (newRoom, result) => {
   });
 };
 
-Rooms.createRoomDeatil = (data, result) => {};
-
 Rooms.updateRoomById = (id, value, result) => {
   sql.query(
     "UPDATE room SET " +
@@ -249,8 +247,22 @@ Rooms.getAll = (title, result) => {
       return;
     }
 
-    // console.log("rooms: ", res);
-    result(null, res);
+    console.log("rooms: ", res);
+    if (res.length) {
+      const resultImages = JSON.parse(res[0].roomImages);
+      
+
+      const dataWithImageArr = {
+        ...res[0], // Copy the existing properties from res[0]
+        roomImages: resultImages, // Add the new 'imageArr' field
+      };
+
+      result(null, {
+        data: dataWithImageArr,
+      });
+      return;
+    }
+    result({ kind: "not_found" }, null);
   });
 };
 
