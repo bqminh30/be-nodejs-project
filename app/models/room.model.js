@@ -260,9 +260,7 @@ Rooms.getAll = (title, result) => {
         };
       });
 
-      result(null, {
-        data: roomsData,
-      });
+      result(null, roomsData);
       return;
     }
     result({ kind: "not_found" }, null);
