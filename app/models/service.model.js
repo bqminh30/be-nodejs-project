@@ -23,7 +23,7 @@ Service.create = (newService, result) => {
 
 Service.getById = (id, result) => {
   let query = `
-  SELECT s.id, s.name, s.unit, s.price,s.type_service_id, type_service.name AS type_service
+  SELECT s.id, s.name, s.unit, s.price,s.type_service_id,s.status, type_service.name AS type_service
    from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id WHERE s.id = ${id}`;
 
    sql.query(query, (err, res) => {
@@ -46,7 +46,7 @@ Service.getById = (id, result) => {
 
 
 Service.findById = (id, result) => {
-  sql.query(`SELECT s.id, s.name, s.unit, s.price,s.type_service_id, type_service.name AS type_service from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id WHERE id = ${id}`, (err, res) => {
+  sql.query(`SELECT s.id, s.name, s.unit, s.price,s.type_service_id,s.service, type_service.name AS type_service from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id WHERE id = ${id}`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -96,10 +96,10 @@ Service.getAllServiceByTypeService = (id, result) => {
   });
 };
 
-Service.updateById = (id, service, result) => {
+Service.updateById = (id, data, result) => {
   sql.query(
-    "UPDATE service SET name = ?, unit = ?, price =? WHERE id = ?",
-    [service.name,service.unit, service.price, id],
+    "UPDATE service SET name = ?, unit = ?, price =?, service=? WHERE id = ?",
+    [data.name,data.unit, data.price,data.service, id],
     (err, res) => {
       if (err) {
         console.log("error: ", err);
@@ -113,8 +113,8 @@ Service.updateById = (id, service, result) => {
         return;
       }
 
-      console.log("updated service: ", { id: id, ...service });
-      result(null, { id: id, ...service });
+      console.log("updated service: ", { id: id, ...data });
+      result(null, { id: id, ...data });
     }
   );
 };
