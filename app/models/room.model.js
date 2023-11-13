@@ -86,7 +86,7 @@ Rooms.updateRoomById = (id, value, result) => {
   sql.query(
     "UPDATE room SET " +
       "name=?, title=?, description=?, price=?,priceSale=?, numberBed =?, numberPeople =?, " +
-      "status= ?,label=?, isLiked=?, image=?,voucher_id=?,type_room_id=?, updatedAt=? WHERE id = ?",
+      "status= ?,label=?, isLiked=?, image=?,numberChildren=?,type_room_id=?, updatedAt=? WHERE id = ?",
     [
       value.name,
       value.title,
@@ -99,9 +99,9 @@ Rooms.updateRoomById = (id, value, result) => {
       value.label,
       value.isLiked,
       value.image,
-      value.voucher_id,
+      value.numberChildren,
       value.type_room_id,
-      value.updatedAt,
+      new Date(),
       id,
     ],
     (err, res) => {

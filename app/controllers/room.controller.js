@@ -68,7 +68,7 @@ exports.createRoom = (req, res) => {
         label: req.body.label ? req.body.label: 0,
         isLiked: req.body.isLiked ? req.body.isLiked : 0,
         image: dataImage,
-        voucher_id: req.body.voucher_id ? req.body.voucher_id : null,
+        numberChildren: req.body.numberChildren ? req.body.numberChildren : 0,
         type_room_id: req.body.type_room_id ? req.body.type_room_id : null,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -132,7 +132,7 @@ exports.updateRoom = (req, res) => {
           label: req.body.label,
           isLiked: req.body.isLiked,
           image: dataImage,
-          voucher_id: req.body.voucher_id,
+          numberChildren: req.body.numberChildren,
           type_room_id: req.body.type_room_id,
           updatedAt: new Date(),
         });
