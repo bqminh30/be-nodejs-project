@@ -268,17 +268,11 @@ exports.searchRoom = (req, res) => {
   const values = [];
 
   if (name) {
-    // Check if the name is a number
-    const isNumber = !isNaN(name);
-    
-    if (isNumber) {
-      conditions.push('numberBed >= ?');
-      values.push(parseInt(name, 10));
-    } else {
-      conditions.push('name LIKE ?');
-      values.push(`%${name}%`);
-    }
+    conditions.push('name LIKE ?'); // Điều kiện tìm kiếm chuỗi với LIKE
+    values.push(`%${name}%`); // Đặt '%' trước và sau giá trị bạn muốn tìm kiếm
   }
+  
+  
 
   if (startDate && endDate) {
     conditions.push(`
