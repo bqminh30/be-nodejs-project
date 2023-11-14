@@ -19,7 +19,6 @@ const Rooms = function (value) {
   this.label = value.label;
   this.isLiked = value.isLiked;
   this.image = value.image;
-  this.voucher_id = value.voucher_id;
   this.type_room_id = value.type_room_id;
   this.createdAt = new Date();
   this.updatedAt = new Date();
@@ -83,6 +82,7 @@ Rooms.createRoom = (newRoom, result) => {
 };
 
 Rooms.updateRoomById = (id, value, result) => {
+  console.log('value', value)
   sql.query(
     "UPDATE room SET " +
       "name=?, title=?, description=?, price=?,priceSale=?, numberBed =?, numberPeople =?, " +

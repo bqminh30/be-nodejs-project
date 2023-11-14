@@ -120,6 +120,8 @@ exports.updateRoom = (req, res) => {
           .catch((err) => console.log("err", err));
         }
 
+        console.log('req.body.numberChildren', req.body.numberChildren, typeof req.body.numberChildren)
+
         const room = new Room({
           name: req.body.name,
           title: req.body.title,
@@ -128,11 +130,11 @@ exports.updateRoom = (req, res) => {
           priceSale: req.body.priceSale,
           numberBed: req.body.numberBed,
           numberPeople: req.body.numberPeople,
+          numberChildren: req.body.numberChildren,
           status: req.body.status,
           label: req.body.label,
           isLiked: req.body.isLiked,
           image: dataImage,
-          numberChildren: req.body.numberChildren,
           type_room_id: req.body.type_room_id,
           updatedAt: new Date(),
         });
