@@ -2,6 +2,7 @@ const Room = require("../models/room.model.js");
 var imageMiddleware = require("../middleware/image-middleware");
 var multer = require("multer");
 var cloudinary = require("cloudinary").v2;
+const db = require("../config/db.js");
 
 // Create and Save a new Room
 exports.createFormRoom = (req, res) => {
@@ -251,3 +252,83 @@ exports.delete = (req, res) => {
   });
 };
 
+
+
+exports.searchRoom = (req, res) => {
+  const {
+    name,
+    startDate,
+    endDate,
+    numberBed,
+    numberPeople,
+    numberChildren,
+  } = req.body;
+
+  console.log('req.body', req.body)
+
+  const conditions = [];
+  const values = [];
+
+  if (name) {
+    // Check if the name is a number
+    const isNumber = !isNaN(name);
+    
+    if (isNumber) {
+      conditions.push('numberBed >= ?');
+      values.push(parseInt(name, 10));
+    } else {
+      conditions.push('name LIKE ?');
+      values.push(`%${name}%`);
+    }
+  }
+
+  if (startDate && endDate) {
+    conditions.push(`
+      id NOT IN (
+        SELECT room_id
+        FROM order_detail
+        WHERE (
+          ? >= checkinDate
+          AND ? <= checkoutDate
+        ) OR (
+          ? >= checkinDate
+          AND ? <= checkoutDate
+        ) OR (
+          ? >= checkinDate
+          AND ? <= checkoutDate
+        )
+      )
+    `);
+    values.push(startDate, endDate, startDate, startDate, endDate, endDate);
+  }
+
+  if (numberBed) {
+    conditions.push('numberBed >= ?');
+    values.push(numberBed);
+  }
+
+  if (numberPeople) {
+    conditions.push('numberPeople >= ?');
+    values.push(numberPeople);
+  }
+
+  if (numberChildren) {
+    conditions.push('numberChildren >= ?');
+    values.push(numberChildren);
+  }
+
+  const queryString = `
+    SELECT *
+    FROM room
+    WHERE ${conditions.join(' AND ')}
+  `;
+
+  db.query(queryString, values, (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      res.status(500).json({ success: false, error: 'Internal Server Error' });
+    } else {
+      res.status(200).json({ success: true, data: results });
+    }
+  });
+}
