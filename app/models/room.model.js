@@ -15,6 +15,7 @@ const Rooms = function (value) {
   this.totalReview = value.totalReview;
   this.numberBed = value.numberBed;
   this.numberPeople = value.numberPeople;
+  this.numberChildren = value.numberChildren;
   this.status = value.status;
   this.label = value.label;
   this.isLiked = value.isLiked;
