@@ -328,7 +328,7 @@ exports.searchRoom = (req, res) => {
       console.error('Error executing query:', err);
       res.status(500).json({ success: false, error: 'Internal Server Error' });
     } else {
-      res.status(200).json({ success: true, data: results });
+      res.status(200).json({ success: true, data: results.data });
     }
   });
 }
