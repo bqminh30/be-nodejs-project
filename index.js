@@ -5,9 +5,13 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser"); 
 const cors = require("cors");
+const axios = require('axios');
 var cron = require('node-cron');
 const app = express();
 const cloudinary = require("cloudinary").v2;
+const { apiPublicKey, apiSecretKey } = require('./app/config/config.js');
+
+
 const facilitiesRoutes = require("./app/routes/facilities.routes.js");
 const {updateVoucherCronJob_2} = require('./app/models/room.model.js')
 const {cronJobUpdateShow} = require('./app/models/voucher.model.js')
@@ -35,6 +39,7 @@ app.use("/upload", express.static("public/images"));
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to server." });
 });
+
 
 // cloudinary configuration
 cloudinary.config({
@@ -69,6 +74,45 @@ cron.schedule('1 0 */12 * *', () => {
 }, {
   scheduled: true,
   timezone: 'Asia/Ho_Chi_Minh'
+});
+
+app.post("/api/v1/initialize-transaction", async (req, res) => {
+  try {
+    const { amount, cardNumber, cardExpMonth, cardExpYear, cardCvv, reference, email, currency } = req.body;
+
+    const response = await axios.post(
+      "https://api.budpay.com/api/v2/transaction/initialize",
+      {
+        amount,
+        cardNumber,
+        cardExpMonth,
+        cardExpYear,
+        cardCvv,
+        reference,
+        email,
+        currency,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": apiPublicKey,
+          "X-API-Secret": apiSecretKey,
+        },
+      }
+    );
+
+    if (response.data.success) {
+      res.json({ success: true, message: "Payment successful!" });
+    } else {
+      res.json({ success: false, message: "Payment failed." });
+    }
+  } catch (error) {
+    console.error("Error processing payment:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while processing the payment.",
+    });
+  }
 });
 
 // set port, listen for requests
