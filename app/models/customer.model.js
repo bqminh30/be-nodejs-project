@@ -8,6 +8,7 @@ const Customer = function (customer) {
   this.address = customer.address;
   this.birthday = customer.birthday;
   this.avatar = customer.avatar;
+  this.gender = customer.gender;
   this.email = customer.email;
   this.createdAt = customer.createdAt;
   this.updatedAt = customer.updatedAt;
@@ -90,7 +91,7 @@ Customer.checkEmailCodeExist = (email, code, userId) => {
 Customer.updateProfile = (data, userId) => {
   return new Promise((resolve, reject) => {
     sql.query(
-      "UPDATE customer SET fullname = ?,phonenumber = ?, email = ?, code = ?, address = ?, birthday = ?, updatedAt =? WHERE id = ?",
+      "UPDATE customer SET fullname = ?,phonenumber = ?, email = ?, gender=?,code = ?, address = ?, birthday = ?, updatedAt =? WHERE id = ?",
       [
         data.fullname,
         data.phonenumber,

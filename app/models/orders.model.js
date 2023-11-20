@@ -8,11 +8,16 @@ const Orders = function (data) {
   this.status = data.status;
   this.total = data.total;
   this.note = data.note;
+  this.fullname = data.fullname;
+  this.email = data.email;
+  this.code = data.code;
+  this.phone = data.phone;
   this.customer_id = data.customer_id;
   this.employee_id = data.employee_id;
   this.createdAt = data.createdAt;
   this.updatedAt = data.updatedAt;
 };
+
 
 Orders.createOrderWithDetails = async (requestData) => {
   const { order, orderDetails } = requestData;
@@ -42,12 +47,16 @@ Orders.create = (requestData) => {
   return new Promise((resolve, reject) => {
     //insert the order data into the "orders" table
     sql.query(
-      "INSERT INTO orders (createdDate, count, status, total, note, customer_id, createdAt,updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO orders (createdDate, count, status, total,phone, fullname, email,code, note, customer_id, createdAt,updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [
         requestData.createdDate,
         requestData.count,
         requestData.status,
         requestData.total,
+        requestData.phone,
+        requestData.fullname,
+        requestData.email,
+        requestData.code,
         requestData.note,
         requestData.customer_id,
         new Date(),

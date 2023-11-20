@@ -199,6 +199,7 @@ exports.update = async (req, res, next) => {
         const status = req.body.status;
         const address = req.body.address;
         const birthday = req.body.birthday;
+        const gender = req.body.gender;
         const code = req.body.code;
         const role_id = req.body.role_id;
         const createAt = new Date();
@@ -229,6 +230,7 @@ exports.update = async (req, res, next) => {
           avatar: dataImage,
           role_id,
           code,
+          gender,
           createAt,
         };
 
@@ -288,6 +290,7 @@ exports.updateQuick = async (req, res, next) => {
     const birthday = req.body.birthday;
     const code = req.body.zipCode;
     const role_id = req.body.role;
+    const gender = req.body.gender;
 
     const inputDate = new Date(birthday);
     const formattedDate = inputDate.toString();
@@ -300,6 +303,7 @@ exports.updateQuick = async (req, res, next) => {
       address,
       formattedDate,
       role_id,
+      gender,
       code,
     };
     console.log("req", req.body);

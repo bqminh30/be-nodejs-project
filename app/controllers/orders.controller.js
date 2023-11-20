@@ -5,7 +5,7 @@ exports.booking = async (req, res) => {
     const requestData = req.body;
     const result = await Orders.createOrderWithDetails(requestData);
     res
-      .status(201)
+      .status(200)
       .json({ message: "Order created successfully", data: result });
   } catch (error) {
     res

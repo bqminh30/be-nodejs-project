@@ -118,6 +118,7 @@ exports.update = async (req, res, next) => {
     const phonenumber = req.body.phonenumber;
     const address = req.body.address;
     const birthday = req.body.birthday;
+    const gender = req.body.gender;
     const code = req.body.code;
     const updatedAt = new Date();
     const data = {
@@ -128,6 +129,7 @@ exports.update = async (req, res, next) => {
       birthday,
       code,
       updatedAt,
+      gender
     };
 
     const userId = req.params.id;

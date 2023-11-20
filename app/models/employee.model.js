@@ -11,6 +11,7 @@ const Employee = function (employee) {
   this.birthday = employee.birthday;
   this.avatar = employee.avatar;
   this.status = employee.status;
+  this.gender = employee.gender;
   this.email = employee.email;
   this.role_id = employee.role_id;
   this.createdAt = new Date();
@@ -96,7 +97,7 @@ Employee.checkEmailCodeExist = (email, code, userId) => {
 Employee.updateProfile = (data, userId) => {
   return new Promise((resolve, reject) => {
     sql.query(
-      "UPDATE employee SET fullname = ?,phonenumber = ?, status = ?, email = ?, code = ?, address = ?, birthday = ?, avatar = ?, role_id = ?, updatedAt =? WHERE id = ?",
+      "UPDATE employee SET fullname = ?,phonenumber = ?, status = ?,gender=?, email = ?, code = ?, address = ?, birthday = ?, avatar = ?, role_id = ?, updatedAt =? WHERE id = ?",
       [
         data.fullname,
         data.phonenumber,
@@ -124,7 +125,7 @@ Employee.updateProfile = (data, userId) => {
 Employee.updateProfileQuick = (data, userId, result) => {
 
     sql.query(
-      "UPDATE employee SET fullname = ?,phonenumber = ?, status = ?, email = ?, code = ?, address = ?, birthday = ?, role_id = ?, updatedAt =? WHERE id = ?",
+      "UPDATE employee SET fullname = ?,phonenumber = ?, status = ?, email = ?, gender=?,code = ?, address = ?, birthday = ?, role_id = ?, updatedAt =? WHERE id = ?",
       [
         data.fullname,
         data.phonenumber,
