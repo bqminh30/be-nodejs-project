@@ -219,7 +219,7 @@ exports.findRoomsByTypeRoomId = (req, res) => {
       res.status(500).send({
         message: err.message || "Some error occurred while retrieving Room.",
       });
-    else res.send(data);
+    else res.status(200).send(data);
   });
 };
 
@@ -231,7 +231,7 @@ exports.findAllPublished = (req, res) => {
         message:
           err.message || "Some error occurred while retrieving TypeRooms.",
       });
-    else res.send(data);
+    else res.status(200).send(data);
   });
 };
 
@@ -248,7 +248,7 @@ exports.delete = (req, res) => {
           message: "Could not delete TypeRoom with id " + req.params.id,
         });
       }
-    } else res.send({ message: `TypeRoom was deleted successfully!` });
+    } else res.status(200).send({ message: `TypeRoom was deleted successfully!` });
   });
 };
 
