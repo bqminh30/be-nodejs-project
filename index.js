@@ -134,8 +134,8 @@ app.get('/create', function(req, res){
         payment_method: "paypal"
     },
     redirect_urls: {
-        return_url: "https://38a4-42-118-135-44.ngrok-free.app/process",
-        cancel_url: "https://38a4-42-118-135-44.ngrok-free.app/cancel"
+        return_url: "https://be-nodejs-project.vercel.app/process",
+        cancel_url: "https://be-nodejs-project.vercel.app/cancel"
     },
     transactions: [
         {
