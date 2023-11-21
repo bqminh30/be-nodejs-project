@@ -32,6 +32,9 @@ paypal.configure({
   'client_secret': 'EHLgb25ODJJC_jgB0IdxtoBI1f7ggS7ho3ZoXAhn078clhQLu9s7apppoqZynL4wJlojKcjTlL-EzRoN'
 });
 
+// access_token
+// A21AAJgOYBLrMe65FcUKp5vpqBxEYdnA0cLQTiWhj89LZyL2btlmxDKgXIWoHqmzw0vNEL5HqVErwaluEpzPvVM0R-iPc3DcQ
+
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
@@ -131,25 +134,34 @@ app.get('/create', function(req, res){
         payment_method: "paypal"
     },
     redirect_urls: {
-        return_url: "https://be-nodejs-project.vercel.app/process",
-        cancel_url: "https://be-nodejs-project.vercel.app/cancel"
+        return_url: "https://38a4-42-118-135-44.ngrok-free.app/process",
+        cancel_url: "https://38a4-42-118-135-44.ngrok-free.app/cancel"
     },
     transactions: [
         {
             item_list: {
                 items: [
                     {
-                        name: "item",
-                        sku: "item",
+                        name: "item1",
+                        sku: "item1",
                         price: "1.00",
                         currency: "USD",
                         quantity: 1
                     }
-                ]
+                ],
+                items: [
+                  {
+                      name: "item2",
+                      sku: "item2",
+                      price: "3.00",
+                      currency: "USD",
+                      quantity: 1
+                  }
+              ]
             },
             amount: {
                 currency: "USD",
-                total: "1.00"
+                total: "4.00"
             },
             description: "This is the payment description."
         }
@@ -175,14 +187,17 @@ app.get('/process', function(req, res){
       if(error){
           console.error(error);
       } else {
+        console.log('payment', payment)
           if (payment.state == 'approved'){ 
-              res.status(200).send('payment completed successfully');
-              // res.status(200)
+              res.status(200).json({ success: true });
           } else {
-              res.send('payment not successful');
+              res.status(200).json({ success: false });
           }
       }
   });
+});
+app.get("/cancel", (req, res) => {
+  res.status(200).json({ success: false });
 });
 // set port, listen for requests
 const PORT = process.env.PORT || 7000;
