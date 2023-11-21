@@ -10,6 +10,7 @@ var cron = require('node-cron');
 const paypal = require('paypal-rest-sdk');
 const app = express();
 const cloudinary = require("cloudinary").v2;
+const stripe = require('stripe')('sk_test_...');
 const { apiPublicKey, apiSecretKey } = require('./app/config/config.js');
 
 
@@ -27,8 +28,8 @@ var corsOptions = {
 
 paypal.configure({
   'mode': 'sandbox', //sandbox or live
-  'client_id': 'AaRTEM6WAhaRMH_90zLF6-NWPurmwTscLrkjplrnSPuEBO_Wy2jQ0TaIctf2feIF9k5L7ikQokShpdh6',
-  'client_secret': 'ENbUna3-27VZjPfr5wjL5WVUf8BoIiFt8G5VV8D22Z4zeZuTZtQo4BY1LVXIIcyCtV3l0Z7KLtygaJpj'
+  'client_id': 'Acznkr8xl6vXd6E9vCIP9WGdTToq4BnzBjerQ1DObiYCJfp7yMO11RdpkRcqOCGm-Y1RAoTiPwPTIwYn',
+  'client_secret': 'EHLgb25ODJJC_jgB0IdxtoBI1f7ggS7ho3ZoXAhn078clhQLu9s7apppoqZynL4wJlojKcjTlL-EzRoN'
 });
 
 app.use(cors(corsOptions));
@@ -174,7 +175,8 @@ app.get('/process', function(req, res){
           console.error(error);
       } else {
           if (payment.state == 'approved'){ 
-              res.send('payment completed successfully');
+              res.status(200).send('payment completed successfully');
+              // res.status(200)
           } else {
               res.send('payment not successful');
           }
