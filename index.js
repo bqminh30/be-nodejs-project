@@ -125,25 +125,38 @@ app.post("/api/v1/initialize-transaction", async (req, res) => {
 
 app.get('/create', function(req, res){
   //build PayPal payment request
-  var payReq = JSON.stringify({
-      'intent':'sale',
-      'redirect_urls':{
-          'return_url':'https://be-nodejs-project.vercel.app/process',
-          'cancel_url':'https://be-nodejs-project.vercel.app/cancel'
-      },
-      'payer':{
-          'payment_method':'paypal'
-      },
-      'transactions':[{
-          'amount':{
-              'total':'7.47',
-              'currency':'USD'
-          },
-          'description':'This is the payment transaction description.'
-      }]
-  });
+  var create_payment_json = {
+    intent: "sale",
+    payer: {
+        payment_method: "paypal"
+    },
+    redirect_urls: {
+        return_url: "https://be-nodejs-project.vercel.app//process",
+        cancel_url: "https://be-nodejs-project.vercel.app//cancel"
+    },
+    transactions: [
+        {
+            item_list: {
+                items: [
+                    {
+                        name: "item",
+                        sku: "item",
+                        price: "1.00",
+                        currency: "USD",
+                        quantity: 1
+                    }
+                ]
+            },
+            amount: {
+                currency: "USD",
+                total: "1.00"
+            },
+            description: "This is the payment description."
+        }
+    ]
+};
 
-  paypal.payment.create(payReq, function(error, payment){
+  paypal.payment.create(create_payment_json, function(error, payment){
     if (error) {
       throw error;
   } else {
