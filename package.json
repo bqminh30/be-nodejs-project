@@ -39,6 +39,7 @@
     "nodemon": "^3.0.1",
     "passport": "^0.6.0",
     "passport-facebook": "^3.0.0",
+    "paypal-rest-sdk": "^1.8.1",
     "pg": "8.7.1",
     "pg-hstore": "2.3.4",
     "rootpath": "^0.1.2",
