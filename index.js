@@ -131,8 +131,8 @@ app.get('/create', function(req, res){
         payment_method: "paypal"
     },
     redirect_urls: {
-        return_url: "https://be-nodejs-project.vercel.app//process",
-        cancel_url: "https://be-nodejs-project.vercel.app//cancel"
+        return_url: "https://be-nodejs-project.vercel.app/process",
+        cancel_url: "https://be-nodejs-project.vercel.app/cancel"
     },
     transactions: [
         {
