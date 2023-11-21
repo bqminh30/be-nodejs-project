@@ -144,25 +144,13 @@ app.get('/create', function(req, res){
   });
 
   paypal.payment.create(payReq, function(error, payment){
-      if(error){
-          console.error(error);
-      } else {
-          //capture HATEOAS links
-          var links = {};
-          payment.links.forEach(function(linkObj){
-              links[linkObj.rel] = {
-                  'href': linkObj.href,
-                  'method': linkObj.method
-              };
-          })
-      
-          //if redirect url present, redirect user
-          if (links.hasOwnProperty('approval_url')){
-              res.redirect(links['approval_url'].href);
-          } else {
-              console.error('no redirect URI present');
-          }
-      }
+    if (error) {
+      throw error;
+  } else {
+      console.log("Create Payment Response");
+      console.log(payment);
+      res.redirect(payment.links[1].href);
+  }
   });
 });
 
