@@ -22,9 +22,9 @@ exports.register = (req, res, next) => {
 
   upload(req, res, async function (err) {
     if (err instanceof multer.MulterError) {
-      res.send(err);
+      res.status(400).send(err);
     } else if (err) {
-      res.send(err);
+      res.status(400).send(err);
     } else {
       try {
         let avatar = req.body.image;
@@ -186,9 +186,9 @@ exports.update = async (req, res, next) => {
 
     upload(req, res, async function (err) {
       if (err instanceof multer.MulterError) {
-        res.send(err);
+        res.status(404).send(err);
       } else if (err) {
-        res.send(err);
+        res.status(404).send(err);
       } else {
         console.log('req.body', req.body)
         let dataImage = "";
@@ -237,8 +237,8 @@ exports.update = async (req, res, next) => {
         const userId = req.params.id;
 
         if (!email || !role_id || !code) {
-          return res.send({
-            status: 400,
+          return res.status(404).send({
+            status: 404,
             message: "Thiếu dữ liệu yêu cầu",
           });
         } else {
@@ -251,21 +251,21 @@ exports.update = async (req, res, next) => {
             );
 
             if (isEmailCodeExist) {
-              return res.send({
-                status: 400,
+              return res.status(404).send({
+                status: 404,
                 message: "Email hoặc code đã tồn tại trong hệ thống",
               });
             }
 
             Employee.updateProfile(data, userId);
 
-            res.send({
+            res.status(200).send({
               status: 200,
               message: "Cập nhật thông tin thành công",
             });
           } catch (error) {
-            return res.send({
-              status: 500,
+            return res.status(400).send({
+              status: 404,
               message: `Lỗi khi kiểm tra email hoặc code: ${error}`,
             });
           }
@@ -273,8 +273,8 @@ exports.update = async (req, res, next) => {
       }
     });
   } catch (e) {
-    return res.send({
-      status: 500,
+    return res.status(404).send({
+      status: 404,
       message: `Không có nhân viên ${e}`,
     });
   }
@@ -351,7 +351,7 @@ exports.updateQuick = async (req, res, next) => {
       }
     }
   } catch (e) {
-    return res.send({
+    return res.status(400).send({
       status: 500,
       message: `Không có nhân viên ${e}`,
     });
@@ -380,7 +380,7 @@ exports.logout = async (req, res, next) => {
     res.clearCookie("token");
     res.json({ message: "Đăng xuất thành công" });
   } catch (err) {
-    res.send({
+    res.status(400).send({
       status: 500,
       message: `Lỗi không thể đăng xuất ${err}`,
     });
