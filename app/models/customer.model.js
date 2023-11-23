@@ -60,16 +60,35 @@ Customer.regiser = (newcustomer, result) => {
     }
   );
 };
-Customer.getCustomerByEmail = (email) => {
+const checkEmailExistence = (email) => {
   return new Promise((resolve, reject) => {
-    sql.query("SELECT * FROM customer WHERE email = ?", email, (error, res) => {
-      if (error) {
-        return reject(error);
+    const queryCustomer = "SELECT * FROM customer WHERE email = ?";
+    const queryEmployee = "SELECT * FROM employee WHERE email = ?";
+
+    // Check in customer table
+    sql.query(queryCustomer, email, (errorCustomer, resCustomer) => {
+      if (errorCustomer) {
+        return reject(errorCustomer);
       }
-      return resolve(res[0]);
+      if (resCustomer.length > 0) {
+        return resolve({ exists: true, table: 'customer' });
+      }
+
+      // Check in employee table
+      sql.query(queryEmployee, email, (errorEmployee, resEmployee) => {
+        if (errorEmployee) {
+          return reject(errorEmployee);
+        }
+        if (resEmployee.length > 0) {
+          return resolve({ exists: true, table: 'employee' });
+        }
+
+        return resolve({ exists: false });
+      });
     });
   });
 };
+
 
 Customer.checkEmailCodeExist = (email, code, userId) => {
   return new Promise((resolve, reject) => {
@@ -112,5 +131,39 @@ Customer.updateProfile = (data, userId) => {
     );
   });
 };
+
+Customer.checkEmailExist = (id) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+        SELECT *
+        FROM customer
+        WHERE id = ? 
+      `;
+    sql.query(query, id, (error, res) => {
+      if (error) {
+        return reject(error);
+      }
+      return resolve(res);
+    });
+  });
+};
+
+Customer.updatePassword = (data, result) => {
+  sql.query(
+    "UPDATE customer SET passwordHash = ? WHERE id = ?",
+    [
+      data.hashedNewPassword,
+      data.id,
+    ],
+    (err, res) => {
+      if (err) {
+        result(err);
+        return;
+      }
+      result(null, res);
+    }
+  );
+
+}
 
 module.exports = Customer;

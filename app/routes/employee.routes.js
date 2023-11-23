@@ -16,6 +16,8 @@ module.exports = app => {
     router.put('/update-quick/:id', employees.updateQuick)
 
     router.get('/list', employees.listEmployee)
+
+    router.post('/change-password',isAuthenticated, employees.changePassword)
   
 
     app.use('/api/employee', router);

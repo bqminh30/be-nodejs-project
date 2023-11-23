@@ -5,7 +5,6 @@ const Customer = require("../models/customer.model.js");
 const { hashSync, genSaltSync, compareSync } = require("bcrypt");
 
 exports.register = async (req, res, next) => {
-  
   try {
     const fullname = req.body.fullname;
     const email = req.body.email;
@@ -25,17 +24,16 @@ exports.register = async (req, res, next) => {
       email,
       password,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
     try {
       user = await Customer.getCustomerByEmail(email);
       if (user) {
-        return res.status(400).send({
-          message: "Invalid email or password",
+        return res.status(401).send({
+          message: "Email already exists",
         });
       } else {
-        console.log('data', data)
-       await Customer.regiser(data, (err, data) => {
+        await Customer.regiser(data, (err, data) => {
           if (err)
             res.status(500).send({
               message:
@@ -60,13 +58,14 @@ exports.register = async (req, res, next) => {
         });
       }
     } catch (err) {
-      return res.status(400).send({
-        message: "Invalid email or password",
+      return res.status(401).send({
+        message: "Email already exists",
       });
     }
-  } catch (err){
-    console.log("Lỗi Register", err);
-    return;
+  } catch (err) {
+    return res.status(500).json({
+      message: "Error!!!",
+    });
   }
 };
 
@@ -129,7 +128,7 @@ exports.update = async (req, res, next) => {
       birthday,
       code,
       updatedAt,
-      gender
+      gender,
     };
 
     const userId = req.params.id;
@@ -177,15 +176,15 @@ exports.update = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
   try {
-    res.clearCookie('token');
-    res.json({ message: 'Đăng xuất thành công' });
-  }catch (err){
+    res.clearCookie("token");
+    res.json({ message: "Đăng xuất thành công" });
+  } catch (err) {
     res.send({
       status: 500,
       message: `Lỗi không thể đăng xuất ${err}`,
-    })
+    });
   }
-}
+};
 
 exports.isAuth = async (req, res, next) => {
   try {
@@ -218,5 +217,48 @@ exports.isAuth = async (req, res, next) => {
     res.status(500).json({
       message: "Internal Server Error",
     });
+  }
+};
+
+exports.changePassword = async (req, res, next) => {
+  if (!req.body) {
+    res.status(400).send({
+      message: "Content can not be empty!",
+    });
+  }
+
+  const userData = req.user.data;
+
+  const { currentPassword, newPassword } = req.body;
+
+  const data = await Customer.checkEmailExist(userData.id);
+  console.log("userData", data);
+  try {
+    const isPasswordValid = await compareSync(
+      currentPassword,
+      data[0]?.passwordHash
+    );
+
+    if (!isPasswordValid) {
+      return res.status(403).json({ error: "Invalid current password" });
+    }
+
+    const hashedNewPassword = await hashSync(newPassword, 10);
+    const passData = {
+      id: userData.id,
+      hashedNewPassword,
+    };
+
+    await Customer.updatePassword(passData, (err, data) => {
+      if (err) {
+        console.error("Error updating password:", err);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+
+      // Password updated successfully
+      res.status(200).json({ message: "Password updated successfully" });
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

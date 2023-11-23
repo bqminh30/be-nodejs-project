@@ -1,5 +1,6 @@
 module.exports = app => {
   const customer = require("../controllers/customer.controller.js");
+  const isAuthenticated = require('../middleware/authMiddleware');
 
   var router = require("express").Router();
 
@@ -11,6 +12,8 @@ module.exports = app => {
   router.post("/logout", customer.logout);
 
   router.get('/check-auth', customer.isAuth)
+  
+  router.post('/change-password',isAuthenticated, customer.changePassword)
 
 
   app.use('/api/customer', router);

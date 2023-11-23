@@ -89,7 +89,24 @@ Employee.checkEmailCodeExist = (email, code, userId) => {
       if (error) {
         return reject(error);
       }
-      return resolve(res[0].count);
+      console.log('res', res)
+      return resolve(res);
+    });
+  });
+};
+
+Employee.checkEmailExist = (id) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+        SELECT *
+        FROM employee
+        WHERE id = ? 
+      `;
+    sql.query(query, id, (error, res) => {
+      if (error) {
+        return reject(error);
+      }
+      return resolve(res);
     });
   });
 };
@@ -155,6 +172,24 @@ Employee.getAll = (result) => {
     }
     result(null, res);
   });
+}
+
+Employee.updatePassword = (data, result) => {
+    sql.query(
+      "UPDATE employee SET passwordHash = ? WHERE id = ?",
+      [
+        data.hashedNewPassword,
+        data.id,
+      ],
+      (err, res) => {
+        if (err) {
+          result(err);
+          return;
+        }
+        result(null, res);
+      }
+    );
+
 }
 module.exports = Employee;
 

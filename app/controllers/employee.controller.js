@@ -182,7 +182,7 @@ exports.update = async (req, res, next) => {
     var upload = multer({
       storage: imageMiddleware.image.storage(),
       allowedImage: imageMiddleware.image.allowedImage,
-    }).single("avatar");
+    }).single("image");
 
     upload(req, res, async function (err) {
       if (err instanceof multer.MulterError) {
@@ -387,53 +387,44 @@ exports.logout = async (req, res, next) => {
   }
 };
 
-exports.changePassword = (req, res, next) => {
+exports.changePassword = async (req, res, next) => {
   if (!req.body) {
     res.status(400).send({
       message: "Content can not be empty!",
     });
   }
 
-  const { username, currentPassword, newPassword } = req.body;
+  const userData = req.user.data
 
-  // Check if the provided username exists in the database
-  Employee.checkEmailCodeExist(username, async (err, user) => {
-    if (err) {
-      console.error('Error finding user:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
+  const { currentPassword, newPassword } = req.body;
 
-    if (!user) {
-      // User not found
-      return res.status(404).json({ error: 'User not found' });
-    }
+  const data = await Employee.checkEmailExist(userData.id);
 
-    // Verify the current password
-    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+  try {
+   
+    const isPasswordValid = await compareSync(currentPassword, data[0]?.passwordHash);
 
     if (!isPasswordValid) {
-      // Current password is incorrect
-      return res.status(401).json({ error: 'Invalid password' });
+      return res.status(403).json({ error: 'Invalid current password' });
     }
 
-    try {
-      // Hash the new password
-      const salt = genSaltSync(10);
-      const hashedPassword = hashSync(newPassword, salt);
-
-      // Update the password in the database
-      Employee.updatePassword(username, hashedPassword, (err) => {
-        if (err) {
-          console.error('Error updating password:', err);
-          return res.status(500).json({ error: 'Internal Server Error' });
-        }
-
-        // Password updated successfully
-        res.status(200).json({ message: 'Password updated successfully' });
-      });
-    } catch (err) {
-      // Handle the error, such as sending an error response
-      res.status(400).json({ message: err.message || 'Error changing password' });
+    const hashedNewPassword = await hashSync(newPassword, 10);
+    const passData = {
+      id: userData.id, hashedNewPassword
     }
-  });
+
+    await Employee.updatePassword( passData, (err,data) => {
+      if (err) {
+        console.error('Error updating password:', err);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+
+      // Password updated successfully
+      res.status(200).json({ message: 'Password updated successfully' });
+    });
+
+  } catch (error) {
+    console.error('Error updating password:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
