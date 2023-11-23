@@ -89,6 +89,17 @@ const checkEmailExistence = (email) => {
   });
 };
 
+Customer.getCustomerByEmail = (email) => {
+  return new Promise((resolve, reject) => {
+    sql.query("SELECT * FROM customer WHERE email = ?", email, (error, res) => {
+      if (error) {
+        return reject(error);
+      }
+      return resolve(res[0]);
+    });
+  });
+};
+
 
 Customer.checkEmailCodeExist = (email, code, userId) => {
   return new Promise((resolve, reject) => {

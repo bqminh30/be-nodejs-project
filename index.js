@@ -143,10 +143,11 @@ app.post("/api/v1/initialize-transaction", async (req, res) => {
 });
 
 app.get("/create", function (req, res) {
-  console.log('req,', req.body)
-  //build PayPal payment request
+  console.log("req,", req.body);
+
+  // Build PayPal payment request
   var create_payment_json = {
-    intent: "sale",
+    intent: "ORDER", 
     payer: {
       payment_method: "paypal",
     },
@@ -161,7 +162,7 @@ app.get("/create", function (req, res) {
             {
               name: "Redhock Bar Soap",
               sku: "001",
-              price: "25.00",
+              price: "100.00",
               currency: "USD",
               quantity: 1,
             },
@@ -176,18 +177,22 @@ app.get("/create", function (req, res) {
         },
         amount: {
           currency: "USD",
-          total: "85.00",
+          
+          total: "200.00", // Initialize total to 0,
+          details: {
+            tax: "40.00",
+            subtotal: "160.00"
+          }
         },
         description: "Washing Bar soap",
       },
     ],
   };
-
+  // Create payment with PayPal API
   paypal.payment.create(create_payment_json, function (error, payment) {
     if (error) {
       throw error;
     } else {
-      console.log("Create Payment Response");
       console.log(payment);
       for (let i = 0; i < payment.links.length; i++) {
         if (payment.links[i].rel === "approval_url") {

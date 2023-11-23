@@ -107,7 +107,7 @@ exports.login = async (req, res, next) => {
     const email = req.body.email;
     const password = req.body.passwordHash;
 
-    user = await Employee.getEmployeeByEmail(email);
+    user = await Employee.getCustomerByEmail(email);
     if (!user) {
       return res.status(400).send({
         message: "Invalid email or password",
