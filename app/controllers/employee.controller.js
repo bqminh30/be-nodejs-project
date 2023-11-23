@@ -6,7 +6,6 @@ const { hashSync, genSaltSync, compareSync } = require("bcrypt");
 var imageMiddleware = require("../middleware/image-middleware");
 var multer = require("multer");
 var cloudinary = require("cloudinary").v2;
-const sql = require("../config/db.js");
 
 exports.register = (req, res, next) => {
   if (!req.body) {
@@ -29,8 +28,10 @@ exports.register = (req, res, next) => {
       try {
         let avatar = req.body.image;
         let statusJson = req.body.status;
+        let genderJson = req.body.gender;
         const imagePath = JSON.parse(avatar);
         const statusPath = JSON.parse(statusJson);
+        const genderPath = JSON.parse(genderJson);
 
         let dataImage = "";
         await cloudinary.uploader
@@ -49,6 +50,7 @@ exports.register = (req, res, next) => {
         const address = req.body.address || "";
         const birthday = req.body.birthday || "";
         const status = statusPath === "active" ? 1 : 0 || 0;
+        const gender = genderPath;
         const role_id = req.body.role_id || null;
         let password = req.body.password;
 
@@ -62,6 +64,7 @@ exports.register = (req, res, next) => {
           code,
           dataImage,
           address,
+          gender,
           birthday,
           password,
           status,
@@ -177,12 +180,15 @@ exports.isAuth = async (req, res, next) => {
   }
 };
 
+exports.createFormRoom = (req, res) => {
+  res.render("upload-form");
+};
 exports.update = async (req, res, next) => {
   try {
     var upload = multer({
       storage: imageMiddleware.image.storage(),
       allowedImage: imageMiddleware.image.allowedImage,
-    }).single("image");
+    }).single("avatar");
 
     upload(req, res, async function (err) {
       if (err instanceof multer.MulterError) {
@@ -199,13 +205,13 @@ exports.update = async (req, res, next) => {
         const status = req.body.status;
         const address = req.body.address;
         const birthday = req.body.birthday;
-        const gender = req.body.gender;
+        const gender = req.body.gender || 0;
         const code = req.body.code;
         const role_id = req.body.role_id;
         const createAt = new Date();
 
-        let imageName = req.body.image;
-        const containsCloudinary = imageName.indexOf("res.cloudinary.com") !== -1;
+        let imageName = req.body.avatar;
+        const containsCloudinary = imageName?.indexOf("res.cloudinary.com") !== -1;
         if(containsCloudinary){
           dataImage = imageName
         }else {
@@ -244,19 +250,7 @@ exports.update = async (req, res, next) => {
         } else {
           // Kiểm tra xem email hoặc code đã tồn tại chưa
           try {
-            const isEmailCodeExist = await Employee.checkEmailCodeExist(
-              email,
-              code,
-              userId
-            );
-
-            if (isEmailCodeExist) {
-              return res.status(404).send({
-                status: 404,
-                message: "Email hoặc code đã tồn tại trong hệ thống",
-              });
-            }
-
+           
             Employee.updateProfile(data, userId);
 
             res.status(200).send({

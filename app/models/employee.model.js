@@ -37,11 +37,11 @@ Employee.regiser = (newEmployee, result) => {
         } else {
           sql.query(
             `
-            INSERT INTO employee (fullname,phonenumber,code, email, passwordHash,address, birthday, avatar,status, role_id, createdAt, updatedAt) 
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+            INSERT INTO employee (fullname,phonenumber,code, email, passwordHash,address,gender, birthday, avatar,status, role_id, createdAt, updatedAt) 
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
             `,
             [newEmployee.fullname, newEmployee.phonenumber, newEmployee.code,
-              newEmployee.email, newEmployee.password, newEmployee.address,
+              newEmployee.email, newEmployee.password, newEmployee.address, newEmployee.gender,
               newEmployee.birthday, newEmployee.dataImage, newEmployee.status,
               newEmployee.role_id, new Date(), new Date()],
             (err, res) => {
@@ -119,6 +119,7 @@ Employee.updateProfile = (data, userId) => {
         data.fullname,
         data.phonenumber,
         data.status,
+        data.gender,
         data.email,
         data.code,
         data.address,
@@ -129,7 +130,6 @@ Employee.updateProfile = (data, userId) => {
         userId,
       ],
       (error, res) => {
-        console.log("error", data, userId);
         if (error) {
           return reject(error);
         }
