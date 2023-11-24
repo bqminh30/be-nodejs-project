@@ -172,12 +172,12 @@ exports.update = async (req, res, next) => {
 
         const userId = req.params.id;
 
-        if (!email || !role_id || !code) {
-          return res.status(404).send({
-            status: 404,
-            message: "Thiếu dữ liệu yêu cầu",
-          });
-        } else {
+        // if (!email || !role_id || !code) {
+        //   return res.status(404).send({
+        //     status: 404,
+        //     message: "Thiếu dữ liệu yêu cầu",
+        //   });
+        // } else {
           // Kiểm tra xem email hoặc code đã tồn tại chưa
           try {
            
@@ -193,7 +193,7 @@ exports.update = async (req, res, next) => {
               message: `Lỗi khi kiểm tra email hoặc code: ${error}`,
             });
           }
-        }
+      //   }
       }
     });
   } catch (e) {
