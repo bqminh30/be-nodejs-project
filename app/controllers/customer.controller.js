@@ -3,6 +3,8 @@ var imageMiddleware = require("../middleware/image-middleware");
 const jsonwebtoken = require("jsonwebtoken");
 const Customer = require("../models/customer.model.js");
 const { hashSync, genSaltSync, compareSync } = require("bcrypt");
+var fs = require('fs');
+var cloudinary = require("cloudinary").v2;
 
 exports.register = async (req, res, next) => {
   try {
@@ -112,63 +114,91 @@ exports.login = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
-    const fullname = req.body.fullname;
-    const email = req.body.email;
-    const phonenumber = req.body.phonenumber;
-    const address = req.body.address;
-    const birthday = req.body.birthday;
-    const gender = req.body.gender;
-    const code = req.body.code;
-    const updatedAt = new Date();
-    const data = {
-      fullname,
-      email,
-      phonenumber,
-      address,
-      birthday,
-      code,
-      updatedAt,
-      gender,
-    };
+    var upload = multer({
+      storage: imageMiddleware.image.storage(),
+      allowedImage: imageMiddleware.image.allowedImage,
+    }).single("avatar");
 
-    const userId = req.params.id;
+    upload(req, res, async function (err) {
+      if (err instanceof multer.MulterError) {
+        res.status(404).send(err);
+      } else if (err) {
+        res.status(404).send(err);
+      } else {
+        let dataImage = "";
+        // store image in database
+        const fullname = req.body.fullname;
+        const email = req.body.email;
+        const phonenumber = req.body.phonenumber;
+        const status = req.body.status;
+        const address = req.body.address;
+        const birthday = req.body.birthday;
+        const gender = req.body.gender || 0;
+        const code = req.body.code;
+        const createAt = new Date();
 
-    if (!email || !code) {
-      return res.send({
-        status: 400,
-        message: "Thiếu dữ liệu yêu cầu",
-      });
-    } else {
-      // Kiểm tra xem email hoặc code đã tồn tại chưa
-      try {
-        // const isEmailCodeExist = await Customer.checkEmailCodeExist(
-        //   email,
-        //   userId
-        // );
+        console.log('req.body', req.body)
+        let imageName = req.body.avatar;
+        const containsCloudinary = imageName?.indexOf("res.cloudinary.com") !== -1;
+        // const byteArrayBuffer = fs.readFile(imageName.preview);
+        // console.log('byteArrayBuffer',byteArrayBuffer)
+        if(containsCloudinary){
+          dataImage = imageName
+        }else {
+          const imagePath = JSON.parse(imageName);
+          await cloudinary.uploader
+          .upload(
+            imagePath.path
+               ? `G:/ProjectHou/images/p2/${imagePath.path}` 
+              : req.body.image
+          )
+          .then((result) => (dataImage = result.url))
+          .catch((err) => console.log("err", err));
+        }
 
-        // if (isEmailCodeExist) {
-        //   return res.send({
-        //     status: 400,
-        //     message: "Email hoặc code đã tồn tại trong hệ thống",
-        //   });
-        // }
+        const data = {
+          fullname,
+          email,
+          phonenumber,
+          status,
+          address,
+          birthday,
+          avatar: dataImage,
+          role_id,
+          code,
+          gender,
+          createAt,
+        };
 
-        Customer.updateProfile(data, userId);
+        const userId = req.params.id;
 
-        res.send({
-          status: 200,
-          message: "Cập nhật thông tin thành công",
-        });
-      } catch (error) {
-        return res.send({
-          status: 500,
-          message: `Lỗi khi kiểm tra email hoặc code: ${error}`,
-        });
+        if (!email || !role_id || !code) {
+          return res.status(404).send({
+            status: 404,
+            message: "Thiếu dữ liệu yêu cầu",
+          });
+        } else {
+          // Kiểm tra xem email hoặc code đã tồn tại chưa
+          try {
+           
+            Customer.updateProfile(data, userId);
+
+            res.status(200).send({
+              status: 200,
+              message: "Cập nhật thông tin thành công",
+            });
+          } catch (error) {
+            return res.status(400).send({
+              status: 404,
+              message: `Lỗi khi kiểm tra email hoặc code: ${error}`,
+            });
+          }
+        }
       }
-    }
+    });
   } catch (e) {
-    return res.send({
-      status: 500,
+    return res.status(404).send({
+      status: 404,
       message: `Không có nhân viên ${e}`,
     });
   }
