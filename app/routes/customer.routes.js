@@ -6,8 +6,10 @@ module.exports = app => {
 
   // Create a new customer
   router.post("/register", customer.register);
+
   router.post("/login", customer.login);
-  router.put("/update/:id", customer.update);
+  
+  router.put("/update/:id", customer.updateCustomer);
 
   router.post("/logout", customer.logout);
 

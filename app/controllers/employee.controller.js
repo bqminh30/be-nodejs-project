@@ -122,14 +122,14 @@ exports.login = async (req, res, next) => {
           process.env.JWT_SECRET,
           {
             algorithm: "HS256",
-            expiresIn: "30d",
+            expiresIn: "360d",
           }
         );
         res.cookie("token", jsontoken, {
           httpOnly: true,
           secure: true,
           SameSite: "strict",
-          expires: new Date(Number(new Date()) + 30 * 24 * 60 * 60 * 1000),
+          expires: new Date(Number(new Date()) + 360 * 24 * 60 * 60 * 1000),
         }); //we add secure: true, when using https.
 
         res.status(200).send({ token: jsontoken, user: user });

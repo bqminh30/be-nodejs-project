@@ -3,8 +3,12 @@ var imageMiddleware = require("../middleware/image-middleware");
 const jsonwebtoken = require("jsonwebtoken");
 const Customer = require("../models/customer.model.js");
 const { hashSync, genSaltSync, compareSync } = require("bcrypt");
-var fs = require('fs');
+var fs = require("fs");
+var path = require("path");
 var cloudinary = require("cloudinary").v2;
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage }).single("avatar");
 
 exports.register = async (req, res, next) => {
   try {
@@ -112,50 +116,31 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.update = async (req, res, next) => {
-  try {
-    var upload = multer({
-      storage: imageMiddleware.image.storage(),
-      allowedImage: imageMiddleware.image.allowedImage,
-    }).single("avatar");
+// Assuming cloudinary and other necessary modules are correctly imported
 
-    upload(req, res, async function (err) {
+exports.updateCustomer = (req, res) => {
+  var upload = multer({
+    storage: imageMiddleware.image.storage(),
+    allowedImage: imageMiddleware.image.allowedImage,
+  }).single("avatar");
+  upload(req, res, async function (err) {
+    try {
       if (err instanceof multer.MulterError) {
-        res.status(404).send(err);
+        res.status(400).send(err);
       } else if (err) {
         res.status(404).send(err);
       } else {
-        let dataImage = "";
-        // store image in database
-        const fullname = req.body.fullname;
-        const email = req.body.email;
-        const phonenumber = req.body.phonenumber;
-        const status = req.body.status;
-        const address = req.body.address;
-        const birthday = req.body.birthday;
-        const gender = req.body.gender || 0;
-        const code = req.body.code;
-        const createAt = new Date();
-
-        console.log('req.body', req.body)
-        let imageName = req.body.avatar;
-        const containsCloudinary = imageName?.indexOf("res.cloudinary.com") !== -1;
-        // const byteArrayBuffer = fs.readFile(imageName.preview);
-        // console.log('byteArrayBuffer',byteArrayBuffer)
-        if(containsCloudinary){
-          dataImage = imageName
-        }else {
-          const imagePath = JSON.parse(imageName);
-          await cloudinary.uploader
-          .upload(
-            imagePath.path
-               ? `G:/ProjectHou/images/p2/${imagePath.path}` 
-              : req.body.image
-          )
-          .then((result) => (dataImage = result.url))
-          .catch((err) => console.log("err", err));
-        }
-
+        const {
+          fullname,
+          email,
+          phonenumber,
+          status,
+          address,
+          birthday,
+          gender,
+          code,
+        } = req.body;
+        const imageName = req.file.filename;
         const data = {
           fullname,
           email,
@@ -163,54 +148,74 @@ exports.update = async (req, res, next) => {
           status,
           address,
           birthday,
-          avatar: dataImage,
-          role_id,
+          avatar: imageName,
           code,
           gender,
-          createAt,
+          status: 1,
+          address
         };
 
         const userId = req.params.id;
 
-        // if (!email || !role_id || !code) {
-        //   return res.status(404).send({
-        //     status: 404,
-        //     message: "Thiếu dữ liệu yêu cầu",
-        //   });
-        // } else {
-          // Kiểm tra xem email hoặc code đã tồn tại chưa
-          try {
-           
-            Customer.updateProfile(data, userId);
+        try {
+          await Customer.updateProfile(data, userId);
 
-            res.status(200).send({
-              status: 200,
-              message: "Cập nhật thông tin thành công",
-            });
-          } catch (error) {
-            return res.status(400).send({
-              status: 404,
-              message: `Lỗi khi kiểm tra email hoặc code: ${error}`,
-            });
-          }
-      //   }
+          res.status(200).send({
+            status: 200,
+            message: "Cập nhật thông tin thành công",
+          });
+        } catch (error) {
+          return res.status(400).send({
+            status: 404,
+            message: `Lỗi khi kiểm tra email hoặc code: ${error}`,
+          });
+        }
       }
-    });
-  } catch (e) {
-    return res.status(404).send({
-      status: 404,
-      message: `Không có nhân viên ${e}`,
-    });
-  }
+    } catch (e) {
+      return res.status(404).send({
+        status: 404,
+        message: `Không có nhân viên ${e}`,
+      });
+    }
+  });
 };
+
+// exports.updateCustomer = (req, res) => {
+//   upload(req, res, async function (err) {
+//     try {
+//       if (err instanceof multer.MulterError) {
+//         return res.status(400).send({ error: 'Multer error' });
+//       } else if (err) {
+//         return res.status(400).send({ error: err.message });
+//       }
+
+//       const { fullname, email, phonenumber, birthday, gender, code } = req.body;
+//       let avatar = '';
+
+//       if (req.file) {
+//         // Uploading image to Cloudinary if a file is present
+//         const result = await cloudinary.uploader.upload(req.file.buffer, {
+//           folder: 'your_folder_name', // Replace with your desired folder name
+//         });
+//         avatar = result.secure_url;
+//       }
+
+//       // Perform your update logic here using the received data
+//       // For example, update the customer's information in the database
+
+//       res.status(200).json({ message: 'Customer updated successfully', avatar });
+//     } catch (error) {
+//       res.status(500).json({ error: 'Server error' });
+//     }
+//   });
+// };
 
 exports.logout = async (req, res, next) => {
   try {
     res.clearCookie("token");
     res.json({ message: "Đăng xuất thành công" });
   } catch (err) {
-    res.send({
-      status: 500,
+    res.status(500).send({
       message: `Lỗi không thể đăng xuất ${err}`,
     });
   }
@@ -245,7 +250,7 @@ exports.isAuth = async (req, res, next) => {
     // Handle any other unexpected errors and return a 500 (Internal Server Error) status code
     console.error(err);
     res.status(500).json({
-      message: "Internal Server Error",
+      message: "TokenExpiredError: jwt expired",
     });
   }
 };

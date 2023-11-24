@@ -37,7 +37,7 @@ Customer.regiser = (newcustomer, result) => {
               newcustomer.email,
               newcustomer.password,
               new Date(),
-              new Date()
+              new Date(),
             ],
             (err, res) => {
               if (err) {
@@ -71,7 +71,7 @@ const checkEmailExistence = (email) => {
         return reject(errorCustomer);
       }
       if (resCustomer.length > 0) {
-        return resolve({ exists: true, table: 'customer' });
+        return resolve({ exists: true, table: "customer" });
       }
 
       // Check in employee table
@@ -80,7 +80,7 @@ const checkEmailExistence = (email) => {
           return reject(errorEmployee);
         }
         if (resEmployee.length > 0) {
-          return resolve({ exists: true, table: 'employee' });
+          return resolve({ exists: true, table: "employee" });
         }
 
         return resolve({ exists: false });
@@ -99,7 +99,6 @@ Customer.getCustomerByEmail = (email) => {
     });
   });
 };
-
 
 Customer.checkEmailCodeExist = (email, code, userId) => {
   return new Promise((resolve, reject) => {
@@ -121,23 +120,24 @@ Customer.checkEmailCodeExist = (email, code, userId) => {
 Customer.updateProfile = (data, userId) => {
   return new Promise((resolve, reject) => {
     sql.query(
-      "UPDATE customer SET fullname = ?,phonenumber = ?, email = ?, gender=?,code = ?, address = ?, birthday = ?, updatedAt =? WHERE id = ?",
+      "UPDATE customer SET fullname = ?,phonenumber = ?, email = ?, gender=?,code = ?, address = ?, birthday = ?,avatar = ?, updatedAt =? WHERE id = ?",
       [
         data.fullname,
         data.phonenumber,
         data.email,
+        data.gender,
         data.code,
         data.address,
         data.birthday,
-        data.updatedAt,
+        data.avatar,
+        new Date(),
         userId,
       ],
       (error, res) => {
-        console.log("error", data, userId);
         if (error) {
           return reject(error);
         }
-        return resolve();
+        return resolve(res);
       }
     );
   });
@@ -162,10 +162,7 @@ Customer.checkEmailExist = (id) => {
 Customer.updatePassword = (data, result) => {
   sql.query(
     "UPDATE customer SET passwordHash = ? WHERE id = ?",
-    [
-      data.hashedNewPassword,
-      data.id,
-    ],
+    [data.hashedNewPassword, data.id],
     (err, res) => {
       if (err) {
         result(err);
@@ -174,7 +171,6 @@ Customer.updatePassword = (data, result) => {
       result(null, res);
     }
   );
-
-}
+};
 
 module.exports = Customer;

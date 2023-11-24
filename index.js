@@ -46,7 +46,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.urlencoded({ extended: true }));
 app.use("/upload", express.static("public/images"));
-app.use(express.static(path.resolve('./public/images')));
 
 // simple route
 app.get("/", (req, res) => {
