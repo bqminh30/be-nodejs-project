@@ -5,6 +5,7 @@ const Employee = require("../models/employee.model.js");
 const { hashSync, genSaltSync, compareSync } = require("bcrypt");
 var imageMiddleware = require("../middleware/image-middleware");
 var multer = require("multer");
+var fs = require('fs');
 var cloudinary = require("cloudinary").v2;
 
 exports.register = (req, res, next) => {
@@ -196,7 +197,6 @@ exports.update = async (req, res, next) => {
       } else if (err) {
         res.status(404).send(err);
       } else {
-        console.log('req.body', req.body)
         let dataImage = "";
         // store image in database
         const fullname = req.body.fullname;
@@ -210,8 +210,11 @@ exports.update = async (req, res, next) => {
         const role_id = req.body.role_id;
         const createAt = new Date();
 
+        console.log('req.body', req.body)
         let imageName = req.body.avatar;
         const containsCloudinary = imageName?.indexOf("res.cloudinary.com") !== -1;
+        // const byteArrayBuffer = fs.readFile(imageName.preview);
+        // console.log('byteArrayBuffer',byteArrayBuffer)
         if(containsCloudinary){
           dataImage = imageName
         }else {
@@ -219,7 +222,7 @@ exports.update = async (req, res, next) => {
           await cloudinary.uploader
           .upload(
             imagePath.path
-              ? `G:/ProjectHou/images/p2/${imagePath.path}`
+               ? `G:/ProjectHou/images/p2/${imagePath.path}` 
               : req.body.image
           )
           .then((result) => (dataImage = result.url))

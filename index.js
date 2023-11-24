@@ -9,6 +9,7 @@ const paypal = require("paypal-rest-sdk");
 const app = express();
 const cloudinary = require("cloudinary").v2;
 const stripe = require("stripe")("sk_test_...");
+const path = require('path');
 const { apiPublicKey, apiSecretKey } = require("./app/config/config.js");
 
 const facilitiesRoutes = require("./app/routes/facilities.routes.js");
@@ -45,6 +46,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(express.urlencoded({ extended: true }));
 app.use("/upload", express.static("public/images"));
+app.use(express.static(path.resolve('./public/images')));
 
 // simple route
 app.get("/", (req, res) => {

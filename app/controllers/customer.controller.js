@@ -141,17 +141,17 @@ exports.update = async (req, res, next) => {
     } else {
       // Kiểm tra xem email hoặc code đã tồn tại chưa
       try {
-        const isEmailCodeExist = await Customer.checkEmailCodeExist(
-          email,
-          userId
-        );
+        // const isEmailCodeExist = await Customer.checkEmailCodeExist(
+        //   email,
+        //   userId
+        // );
 
-        if (isEmailCodeExist) {
-          return res.send({
-            status: 400,
-            message: "Email hoặc code đã tồn tại trong hệ thống",
-          });
-        }
+        // if (isEmailCodeExist) {
+        //   return res.send({
+        //     status: 400,
+        //     message: "Email hoặc code đã tồn tại trong hệ thống",
+        //   });
+        // }
 
         Customer.updateProfile(data, userId);
 
