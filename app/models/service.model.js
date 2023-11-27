@@ -98,8 +98,8 @@ Service.getAllServiceByTypeService = (id, result) => {
 
 Service.updateById = (id, data, result) => {
   sql.query(
-    "UPDATE service SET name = ?, unit = ?, price =?, service=? WHERE id = ?",
-    [data.name,data.unit, data.price,data.service, id],
+    "UPDATE service SET name = ?, unit = ?, price =?, status=? WHERE id = ?",
+    [data.name,data.unit, data.price,data.status, id],
     (err, res) => {
       if (err) {
         console.log("error: ", err);

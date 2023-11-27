@@ -154,6 +154,7 @@ exports.updateCustomer = (req, res) => {
           status: 1,
           address
         };
+        console.log('data', data)
 
         const userId = req.params.id;
 

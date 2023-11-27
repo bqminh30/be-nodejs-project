@@ -114,7 +114,7 @@ exports.updateRoom = (req, res) => {
           await cloudinary.uploader
           .upload(
             imagePath.path
-              ? `G:/ProjectHou/images/p1/${imagePath.path}`
+              ? `/Applications/Work/React Native/project-hou/server/images/p1/${imagePath.path}`
               : req.body.image
           )
           .then((result) => (dataImage = result.url))
