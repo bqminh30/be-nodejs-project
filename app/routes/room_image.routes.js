@@ -7,7 +7,7 @@ module.exports = (app) => {
   router.get("/create", roomImage.roomImageUpload);
   router.post("/create", roomImage.roomImageCreate);
 
-  router.put("/update", roomImage.roomImageUpdate);
+  router.put("/update/:id", roomImage.roomImageUpdate);
 
   app.use("/api/room-image", router);
 };

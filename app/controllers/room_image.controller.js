@@ -14,7 +14,7 @@ module.exports = {
         storage: imageMiddleware.image.storage(),
         allowedImage: imageMiddleware.image.allowedImage,
         limits: { fileSize: 10 * 1024 * 1024 }, // 1M
-      }).array("roomImage", 10);
+      }).array("roomImages", 10);
 
       multi_upload(req, res, async function (err) {
         if (err instanceof multer.MulterError) {
@@ -30,7 +30,7 @@ module.exports = {
           });
         }
 
-        const files = JSON.parse(req.body.roomImage); // Sử dụng req.files để truy cập các tệp đã tải lên
+        const files = JSON.parse(req.body.roomImages); // Sử dụng req.files để truy cập các tệp đã tải lên
         const room_id = req.body.room_id;
         const promises = [];
 
@@ -105,8 +105,8 @@ module.exports = {
       const multi_upload = multer({
         storage: imageMiddleware.image.storage(),
         allowedImage: imageMiddleware.image.allowedImage,
-        limits: { fileSize: 1 * 1024 * 1024 }, // 1M
-      }).array("roomImage", 10);
+        limits: { fileSize: 10 * 1024 * 1024 }, // 1M
+      }).array("roomImages", 10);
       // Xóa các ảnh cũ trong thư mục public/images liên quan đến phòng
 
       multi_upload(req, res, async function (err) {
@@ -137,8 +137,8 @@ module.exports = {
           return;
         } else {
           const promises = [];
-          const files = JSON.parse(req.body.roomImage);
-          const roomId = req.body.id;
+          const files = JSON.parse(req.body.roomImages);
+          const roomId = req.params.id;
 
           if (!files || files.length === 0) {
             return res.status(400).send({
@@ -149,25 +149,7 @@ module.exports = {
 
 
           for (const file of files) {
-            if (file?.path?.includes("res.cloud")) {
-              // Xử lý ảnh có đường dẫn "res.cloud" (không cần thay đổi)
-              const inputValues = {
-                name: file.path, // Tên ảnh không thay đổi
-                data: file.path, // Dữ liệu ảnh không thay đổi
-                room_id: roomId,
-                createdAt: new Date(),
-              };
-              const promise = new Promise((resolve, reject) => {
-                RoomImage.create(inputValues, (err, data) => {
-                  if (err) {
-                    reject(err);
-                  } else {
-                    resolve(data);
-                  }
-                });
-              });
-              promises.push(promise);
-            } else if (file.preview?.startsWith("blob:")) {
+           if (file.preview?.startsWith("blob:")) {
               // Xử lý ảnh có đường dẫn "blob" (đưa ảnh lên Cloud và lưu vào CSDL)
               try {
                 const result = await cloudinary.uploader.upload(
@@ -196,6 +178,25 @@ module.exports = {
                 console.log("Error uploading to Cloudinary:", err);
               }
             }
+             else if (file?.path?.includes("res.cloud")) {
+              // Xử lý ảnh có đường dẫn "res.cloud" (không cần thay đổi)
+              const inputValues = {
+                name: file.path, // Tên ảnh không thay đổi
+                data: file.path, // Dữ liệu ảnh không thay đổi
+                room_id: roomId,
+                createdAt: new Date(),
+              };
+              const promise = new Promise((resolve, reject) => {
+                RoomImage.create(inputValues, (err, data) => {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    resolve(data);
+                  }
+                });
+              });
+              promises.push(promise);
+            } 
           }
 
           try {

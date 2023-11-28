@@ -8,6 +8,7 @@ const db = require("../config/db.js");
 exports.createFormRoom = (req, res) => {
   res.render("upload-form");
 };
+
 exports.createRoom = (req, res) => {
   // Validate request
   if (!req.body) {
@@ -58,7 +59,7 @@ exports.createRoom = (req, res) => {
         name: req.body.name,
         title: req.body.title,
         description: req.body.description,
-        price: req.body.price ? req.body.price: 0,
+        price: req.body.price ? req.body.price : 0,
         priceSale: req.body.priceSale ? req.body.priceSale : 0,
         rating: 0,
         totalRating: 0,
@@ -66,7 +67,7 @@ exports.createRoom = (req, res) => {
         numberBed: req.body.numberBed ? req.body.numberBed : 0,
         numberPeople: req.body.numberPeople ? req.body.numberPeople : 0,
         status: req.body.status ? req.body.status : 0,
-        label: req.body.label ? req.body.label: 0,
+        label: req.body.label ? req.body.label : 0,
         isLiked: req.body.isLiked ? req.body.isLiked : 0,
         image: dataImage,
         numberChildren: req.body.numberChildren ? req.body.numberChildren : 0,
@@ -105,23 +106,23 @@ exports.updateRoom = (req, res) => {
         res.send(err);
       } else {
         let dataImage = "";
-        let imageName = req.body.image;
-        const containsCloudinary = imageName.indexOf("res.cloudinary.com") !== -1;
-        if(containsCloudinary){
-          dataImage = imageName
-        }else {
-          const imagePath = JSON.parse(imageName);
-          await cloudinary.uploader
-          .upload(
-            imagePath.path
-              ? `/Applications/Work/React Native/project-hou/server/images/p1/${imagePath.path}`
-              : req.body.image
-          )
-          .then((result) => (dataImage = result.url))
-          .catch((err) => console.log("err", err));
-        }
 
-        console.log('req.body.numberChildren', req.body.numberChildren, typeof req.body.numberChildren)
+        let imageName = req.body.image;
+        const containsCloudinary =
+          imageName.indexOf("res.cloudinary.com") !== -1;
+        if (containsCloudinary) {
+          dataImage = imageName;
+        } else {
+          const imagePath = imageName;
+          await cloudinary.uploader
+            .upload(
+              imagePath.path
+                ? `G:/ProjectHou/images/p1/${imagePath.path}`
+                : req.body.image
+            )
+            .then((result) => (dataImage = result.url))
+            .catch((err) => console.log("err", err));
+        }
 
         const room = new Room({
           name: req.body.name,
@@ -146,24 +147,27 @@ exports.updateRoom = (req, res) => {
               message: "Error updating room with id " + err,
             });
           } else
-
-          Room.updateVoucherCronJob((data,err) => {
-            if (err) {
-              res.status(500).send({
-                message: "Error updating room with id " + err,
-              });
-            }else {
-              res.status(200).send({
-                data: data,
-                message: "Cập nhật phòng thành công",
-              });
-            }
-          })
+            res.status(200).send({
+              data: data,
+              message: "Cập nhật phòng thành công",
+            });
+          // Room.updateVoucherCronJob((data,err) => {
+          //   if (err) {
+          //     res.status(500).send({
+          //       message: "Error updating room with id " + err,
+          //     });
+          //   }else {
+          //     res.status(200).send({
+          //       data: data,
+          //       message: "Cập nhật phòng thành công",
+          //     });
+          //   }
+          // })
         });
       }
     });
   } catch (err) {
-    res.send({
+    res.status(404).send({
       status: 404,
       message: "Request Update Failed",
     });
@@ -248,31 +252,38 @@ exports.delete = (req, res) => {
           message: "Could not delete TypeRoom with id " + req.params.id,
         });
       }
-    } else res.status(200).send({ message: `TypeRoom was deleted successfully!` });
+    } else
+      res.status(200).send({ message: `TypeRoom was deleted successfully!` });
   });
 };
 
-
-
+//Search Room with field
 exports.searchRoom = (req, res) => {
   const {
     name,
     startDate,
     endDate,
-    numberBed,
+    numberRoom,
     numberPeople,
     numberChildren,
+    priceMin,
+    priceMax,
+    til,
+    type,
   } = req.body;
 
   const conditions = [];
   const values = [];
 
   if (name) {
-    conditions.push('name LIKE ?'); // Điều kiện tìm kiếm chuỗi với LIKE
+    conditions.push("name LIKE ?"); // Điều kiện tìm kiếm chuỗi với LIKE
     values.push(`%${name}%`); // Đặt '%' trước và sau giá trị bạn muốn tìm kiếm
   }
-  
-  
+
+  if (priceMin || priceMax) {
+    conditions.push("price >= ? AND price <= ?");
+    values.push(priceMin, priceMax);
+  }
 
   if (startDate && endDate) {
     conditions.push(`
@@ -294,34 +305,52 @@ exports.searchRoom = (req, res) => {
     values.push(startDate, endDate, startDate, startDate, endDate, endDate);
   }
 
-  if (numberBed) {
-    conditions.push('numberBed >= ?');
-    values.push(numberBed);
-  }
+  if (numberRoom > 1) {
+    // if (numberRoom) {
+    //   conditions.push('numberRoom <= ?');
+    //   values.push(numberRoom);
+    // }
 
-  if (numberPeople) {
-    conditions.push('numberPeople >= ?');
-    values.push(numberPeople);
-  }
+    if (numberPeople) {
+      conditions.push("numberPeople <= ?");
+      values.push(numberPeople);
+    }
 
-  if (numberChildren) {
-    conditions.push('numberChildren >= ?');
-    values.push(numberChildren);
+    if (numberChildren) {
+      conditions.push("numberChildren <= ?");
+      values.push(numberChildren);
+    }
+  } else {
+    // if (numberRoom) {
+    //   conditions.push('numberRoom <= ?');
+    //   values.push(numberRoom);
+    // }
+
+    if (numberPeople) {
+      conditions.push("numberPeople >= ?");
+      values.push(numberPeople);
+    }
+
+    if (numberChildren) {
+      conditions.push("numberChildren >= ?");
+      values.push(numberChildren);
+    }
   }
 
   const queryString = `
-    SELECT *
-    FROM room
-    WHERE ${conditions.join(' AND ')}
-  `;
+  SELECT *
+  FROM room
+  WHERE ${conditions.join(" AND ")} ${til && type ? 'ORDER BY ' + til + ' ' + type : ''}
+`;
+
+console.log('queryString', queryString)
+
 
   db.query(queryString, values, (err, results) => {
     if (err) {
-      console.error('Error executing query:', err);
-      res.status(500).json({ success: false, error: 'Internal Server Error' });
+      res.status(500).json({ success: false, error: "Internal Server Error" });
     } else {
-      console.log('results.data', results)
       res.status(200).json({ data: results });
     }
   });
-}
+};

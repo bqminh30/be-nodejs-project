@@ -3,8 +3,10 @@ const sql = require("../config/db.js");
 // constructor
 const Service = function(service) {
   this.name = service.name;
+  this.detail = service.detail;
   this.unit = service.unit;
   this.price = service.price;
+  this.status = service.status;
   this.type_service_id = service.type_service_id;
 };
 
@@ -23,7 +25,7 @@ Service.create = (newService, result) => {
 
 Service.getById = (id, result) => {
   let query = `
-  SELECT s.id, s.name, s.unit, s.price,s.type_service_id,s.status, type_service.name AS type_service
+  SELECT s.id, s.name, s.unit, s.price,s.type_service_id,s.status,s.detail, type_service.name AS type_service
    from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id WHERE s.id = ${id}`;
 
    sql.query(query, (err, res) => {
@@ -46,7 +48,7 @@ Service.getById = (id, result) => {
 
 
 Service.findById = (id, result) => {
-  sql.query(`SELECT s.id, s.name, s.unit, s.price,s.type_service_id,s.service, type_service.name AS type_service from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id WHERE id = ${id}`, (err, res) => {
+  sql.query(`SELECT s.id, s.name, s.unit, s.price,s.type_service_id,s.service,s.detail, type_service.name AS type_service from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id WHERE id = ${id}`, (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -65,7 +67,7 @@ Service.findById = (id, result) => {
 };
 
 Service.getAll = (title, result) => {
-  let query = "SELECT s.id, s.name,s.status, s.unit, s.price,s.type_service_id, type_service.name AS type_service from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id";
+  let query = "SELECT s.id, s.name,s.status, s.unit,s.detail, s.price,s.type_service_id, type_service.name AS type_service from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id";
 
   if (title) {
     query += ` WHERE name LIKE '%${title}%'`;
@@ -98,8 +100,8 @@ Service.getAllServiceByTypeService = (id, result) => {
 
 Service.updateById = (id, data, result) => {
   sql.query(
-    "UPDATE service SET name = ?, unit = ?, price =?, status=? WHERE id = ?",
-    [data.name,data.unit, data.price,data.status, id],
+    "UPDATE service SET name = ?,detail =? unit = ?, price =?, status=? WHERE id = ?",
+    [data.name,data.detail,data.unit, data.price,data.status, id],
     (err, res) => {
       if (err) {
         console.log("error: ", err);

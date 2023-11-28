@@ -13,6 +13,7 @@ exports.create = (req, res) => {
   const service = new Service({
     name: req.body.name,
     unit: req.body.unit,
+    detail: req.body.detail,
     price: req.body.price,
     type_service_id: req.body.type_service_id,
   });
@@ -97,7 +98,7 @@ exports.update = (req, res) => {
             message: "Error updating Service with id " + req.params.id
           });
         }
-      } else res.send(data);
+      } else res.status(200).send(data);
     }
   );
 };
@@ -115,7 +116,7 @@ exports.delete = (req, res) => {
           message: "Could not delete Service with id " + req.params.id
         });
       }
-    } else res.send({ message: `Service was deleted successfully!` });
+    } else res.status(200).send({ message: `Service was deleted successfully!` });
   });
 };
 

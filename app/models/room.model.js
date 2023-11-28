@@ -199,7 +199,7 @@ Rooms.findRoomById = (id, result) => {
         result(err, null);
         return;
       }
-      console.log('res', res)
+      // console.log('res', res)
 
       if (res.length) {
         const resultServicesData = JSON.parse(res[0].service_data);
