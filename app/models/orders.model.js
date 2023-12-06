@@ -159,7 +159,7 @@ Orders.getOrderStatus = (status, result) => {
 
 
 Orders.getOrderCustomer  = (id, result) => {
-  sql.query("SELECT * FROM orders WHERE customer_id = ?", id, (err, res) => {
+  sql.query("SELECT * FROM orders WHERE customer_id = ? ORDER BY createdDate DESC", id, (err, res) => {
     if (err) {
       result(null, err);
       return;
