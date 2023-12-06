@@ -93,6 +93,7 @@ Orders.findById = (id, result) => {
       "price":"', od_detail.price, '",
       "personCount":"', od_detail.personCount, '",
       "childrenCount":"', od_detail.childrenCount, '",
+      "room_id":"', od_detail.room_id, '",
       "room_name":"', r.name, '"}' SEPARATOR ','), ']') AS od_detail,
       c.fullname,
       c.email,
