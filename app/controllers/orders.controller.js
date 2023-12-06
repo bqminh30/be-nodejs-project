@@ -1,4 +1,5 @@
 const Orders = require("../models/orders.model.js");
+const Order_detail = require("../models/order_detail.model.js");
 
 exports.booking = async (req, res) => {
   try {
@@ -6,7 +7,7 @@ exports.booking = async (req, res) => {
     const result = await Orders.createOrderWithDetails(requestData);
     res
       .status(200)
-      .json({ message: "Order created successfully", data: result });
+      .json({ message: "Order created successfully" });
   } catch (error) {
     res
       .status(500)
@@ -117,3 +118,15 @@ exports.cronJobOrder = (req, res) => {
   console.log('runnnn')
 }
 
+exports.checkRoomAvailability = async (req, res) => {
+  const {startDate, endDate, roomId} = req.body;
+  try {
+    // Thực hiện kiểm tra tính khả dụng của phòng dựa trên startDate, endDate và roomId
+    const isAvailable = await Order_detail.checkOrderBooking(startDate, endDate, roomId);
+
+    res.json({ available: isAvailable });
+  } catch (error) {
+    console.error('Đã xảy ra lỗi: ', error);
+    res.status(500).json({ error: 'Đã xảy ra lỗi khi kiểm tra tính khả dụng của phòng' });
+  }
+}

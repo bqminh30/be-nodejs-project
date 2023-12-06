@@ -241,12 +241,10 @@ Rooms.getAll = (title, result) => {
 
   sql.query(query, (err, res) => {
     if (err) {
-      console.log("error: ", err);
       result(err, null);
       return;
     }
 
-    console.log("rooms: ", res);
     if (res.length) {
       const roomsData = res.map((room) => {
         const resultImages = JSON.parse(room.roomImages);

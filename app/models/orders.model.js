@@ -14,6 +14,7 @@ const Orders = function (data) {
   this.phone = data.phone;
   this.customer_id = data.customer_id;
   this.employee_id = data.employee_id;
+  this.type_payment = data.type_payment;
   this.createdAt = data.createdAt;
   this.updatedAt = data.updatedAt;
 };
@@ -21,15 +22,19 @@ const Orders = function (data) {
 
 Orders.createOrderWithDetails = async (requestData) => {
   const { order, orderDetails } = requestData;
+  // console.log('orders created', order, orderDetails)
   try {
     // Create the order
-    const createdOrder = await Orders.create(order);
+    const createdOrderId = await Orders.create(order);
+
+    // console.log('orders created', createdOrder)
 
     // Create order details associated with the order
     const createdOrderDetails = await Promise.all(
       orderDetails.map(async (detail) => {
         // Associate order detail with the created order
-        detail.order_id = createdOrder;
+        detail.order_id = createdOrderId;
+        
         // Create the order detail and store the result (including its id)
         const createdDetail = await Order_Detail.createOrderDetail(detail);
 
@@ -37,8 +42,10 @@ Orders.createOrderWithDetails = async (requestData) => {
       })
     );
 
+    console.log('orders created', createdOrderDetails)
+
     // Return the created order and order details
-    return { order: createdOrder, orderDetails: createdOrderDetails };
+    return { order: createdOrderId, orderDetails: createdOrderDetails };
   } catch (error) {
     throw `${error}`;
   }
@@ -47,17 +54,18 @@ Orders.create = (requestData) => {
   return new Promise((resolve, reject) => {
     //insert the order data into the "orders" table
     sql.query(
-      "INSERT INTO orders (createdDate, count, status, total,phone, fullname, email,code, note, customer_id, createdAt,updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO orders (createdDate, count, status, total,phone, fullname, email,code, note, type_payment,customer_id, createdAt,updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?)",
       [
-        requestData.createdDate,
+        new Date(),
         requestData.count,
-        requestData.status,
+        requestData.status == 'Pending' ? 1: 0,
         requestData.total,
-        requestData.phone,
-        requestData.fullname,
-        requestData.email,
-        requestData.code,
+        requestData.profile.phone,
+        requestData.profile.fullname,
+        requestData.profile.email,
+        requestData.profile.code,
         requestData.note,
+        'paypal',
         requestData.customer_id,
         new Date(),
         new Date(),
@@ -82,7 +90,9 @@ Orders.findById = (id, result) => {
       "status":"', od_detail.status, '",
       "dateCount":"', od_detail.dateCount, '",
       "total":"', od_detail.total, '",
+      "price":"', od_detail.price, '",
       "personCount":"', od_detail.personCount, '",
+      "childrenCount":"', od_detail.childrenCount, '",
       "room_name":"', r.name, '"}' SEPARATOR ','), ']') AS od_detail,
       c.fullname,
       c.email,

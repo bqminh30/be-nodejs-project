@@ -145,8 +145,6 @@ app.post("/api/v1/initialize-transaction", async (req, res) => {
 });
 
 app.get("/create", function (req, res) {
-  console.log("req,", req.body);
-
   // Build PayPal payment request
   var create_payment_json = {
     intent: "ORDER", 
@@ -154,8 +152,8 @@ app.get("/create", function (req, res) {
       payment_method: "paypal",
     },
     redirect_urls: {
-      return_url: "https://be-nodejs-project.vercel.app/process",
-      cancel_url: "https://be-nodejs-project.vercel.app/cancel",
+      return_url: "https://a359-58-186-129-74.ngrok-free.app/process",
+      cancel_url: "https://a359-58-186-129-74.ngrok-free.app/cancel",
     },
     transactions: [
       {
@@ -195,10 +193,9 @@ app.get("/create", function (req, res) {
     if (error) {
       throw error;
     } else {
-      console.log(payment);
       for (let i = 0; i < payment.links.length; i++) {
         if (payment.links[i].rel === "approval_url") {
-          res.redirect(payment.links[i].href);
+          res.status(200).json({approval_url: payment.links[i].href});
         }
       }
     }
@@ -213,7 +210,7 @@ app.get("/process", function (req, res) {
     if (error) {
       console.error(error);
     } else {
-      console.log("payment", payment);
+      // console.log("payment", payment);
       if (payment.state == "approved") {
         res.status(200).json({ success: true });
       } else {
@@ -222,6 +219,7 @@ app.get("/process", function (req, res) {
     }
   });
 });
+
 app.get("/cancel", (req, res) => {
   res.status(200).json({ success: false });
 });

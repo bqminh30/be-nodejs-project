@@ -18,6 +18,8 @@ module.exports = (app) => {
     
     //Update a new Room
     router.put("/status", orders.updateOrderStatus);
+
+    router.post("/check-room-availiable", orders.checkRoomAvailability);
   
     app.use("/api/orders", router);
   };
