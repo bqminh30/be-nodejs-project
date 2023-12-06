@@ -29,45 +29,28 @@ exports.create = (req, res) => {
     });
   }
 
-  // Create a TypeRoom
-  var upload = multer({
-    storage: imageMiddleware.image.storage(),
-    allowedImage: imageMiddleware.image.allowedImage,
-  }).single("image");
+  const review = new Reviews({
+    content: req.body.content,
+    rating: req.body.rating,
+    image: req.body.image ? req.body.image : "",
+    status: 1,
+    room_id: req.body.room_id,
+    customer_id: req.body.customer_id,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
 
-  upload(req, res, function (err) {
-    if (err instanceof multer.MulterError) {
-      res.send(err);
-    } else if (err) {
-      res.send(err);
-    } else {
-      // store image in database
-      var imageName = req.file.originalname;
-      const review = new Reviews({
-        content: req.body.content,
-        rating: req.body.rating,
-        image: imageName ? imageName : '',
-        status: 1,
-        room_id: req.body.room_id,
-        customer_id: req.body.customer_id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+  // Save Reviews in the database
+  Reviews.createReview(review, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message: err.message || "Some error occurred while creating Review.",
       });
-
-      // Save Reviews in the database
-      Reviews.createReview(review, (err, data) => {
-        if (err)
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while creating Review.",
-          });
-        else
-          res.status(200).send({
-            data: data,
-            message: "Đánh giá phòng thành công",
-          });
+    else
+      res.status(200).send({
+        data: data,
+        message: "Đánh giá phòng thành công",
       });
-    }
   });
 };
 
