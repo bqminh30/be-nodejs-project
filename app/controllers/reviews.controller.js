@@ -43,7 +43,7 @@ exports.create = (req, res) => {
   // Save Reviews in the database
   Reviews.createReview(review, (err, data) => {
     if (err)
-      res.status(500).send({
+      res.status(403).send({
         message: err.message || "Some error occurred while creating Review.",
       });
     else
