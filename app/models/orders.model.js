@@ -156,6 +156,17 @@ Orders.getOrderStatus = (status, result) => {
   });
 };
 
+
+Orders.getOrderCustomer  = (id, result) => {
+  sql.query("SELECT * FROM orders WHERE customer_id = ?", id, (err, res) => {
+    if (err) {
+      result(null, err);
+      return;
+    }
+    result(null, res);
+  });
+};
+
 Orders.updateStatusOrderById = (data, result) => {
   // First, check if the employee with the given employee_id exists
   sql.query(

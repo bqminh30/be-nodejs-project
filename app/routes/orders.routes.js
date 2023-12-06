@@ -15,6 +15,9 @@ module.exports = (app) => {
   
     // get orders status
     router.get('/status/:id',orders.getOrderStatusById)
+
+    // get orders status
+    router.get('/customers/:id',orders.getOrderCustomerById)
     
     //Update a new Room
     router.put("/status", orders.updateOrderStatus);

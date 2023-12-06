@@ -68,6 +68,25 @@ exports.getOrderStatusById = async (req, res) => {
   }
 };
 
+
+
+exports.getOrderCustomerById = async (req, res) => {
+  try {
+    Orders.getOrderCustomer(req.params.id, (err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving Orders.",
+        });
+      else res.status(200).send(data);
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error get orders", error: error.message });
+  }
+};
+
 exports.updateOrderStatus = (req, res) => {
   // Assuming you have the 'employee_id' and 'order_id' in the request body or parameters
   const { user, data } = req.body; // You may need to adjust this based on your actual request structure
