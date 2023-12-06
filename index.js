@@ -20,6 +20,7 @@ var corsOptions = {
   origin: [
     "http://localhost:8080",
     "https://center-marriott-booking.vercel.app",
+    "http://localhost:3000",
     "*",
   ],
 
