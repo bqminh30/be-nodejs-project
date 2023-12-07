@@ -5,7 +5,7 @@ module.exports = (app) => {
     // // Get All Room
     router.get("/", room_service.findAll);
     // //Get a Room
-    // router.get('/:id',room.findRoomById)
+    router.get('/:id',room_service.findDetail)
     // //Get Rooms by type Room id
     // router.get('/type/:id',room.findRoomsByTypeRoomId)
     // // Create a new Room

@@ -23,6 +23,42 @@ RoomService.create = (data, result) => {
   });
 };
 
+RoomService.getDetail = (id, result) => {
+  let query = `
+  SELECT 
+    room_service.*,
+    room.name,
+    service.name,
+    service.price,
+    customer.fullname,
+    customer.email,
+    room.name
+FROM 
+    room_service
+INNER JOIN 
+    room ON room_service.room_id = room.id
+INNER JOIN 
+    service ON room_service.service_id = service.id
+INNER JOIN 
+    customer ON room_service.customer_id = customer.id WHERE room_service.id = ${id};`;
+  sql.query(query, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+
+    if (res.length) {
+      console.log("found tutorial: ", res[0]);
+      result(null, res[0]);
+      return;
+    }
+
+    // not found Tutorial with the id
+    result({ kind: "not_found" }, null);
+  });
+};
+
 RoomService.update = (id, data, result) => {
   sql.query(
     "UPDATE room_service SET quantity=?, room_id=?, service_id=?, updatedAt =? WHERE id = ?",
