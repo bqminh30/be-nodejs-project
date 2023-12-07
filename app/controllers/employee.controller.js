@@ -162,13 +162,13 @@ exports.isAuth = async (req, res, next) => {
         process.env.JWT_SECRET
       );
       if (isCheckToken.data) {
-        return res.status(200).json({
+       res.status(200).json({
           user: isCheckToken.data,
         });
       }
     } else {
       // No token found in the request, return a 403 (Forbidden) status code
-      return res.status(403).json({
+      res.status(403).json({
         message: "No token provided.",
       });
     }
