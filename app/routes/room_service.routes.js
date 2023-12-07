@@ -3,7 +3,7 @@ module.exports = (app) => {
   
     var router = require("express").Router();
     // // Get All Room
-    // router.get("/", room.findAll);
+    router.get("/", room_service.findAll);
     // //Get a Room
     // router.get('/:id',room.findRoomById)
     // //Get Rooms by type Room id

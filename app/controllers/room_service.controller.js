@@ -172,6 +172,19 @@ module.exports = {
         message: `Có lỗi xảy ra ${error}`,
       });
     }
+  },
+
+  findAll: async function (req, res){
+    // const name = req.query.name;
+
+  RoomService.getAll((err, data) => {
+    if (err)
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving TypeRooms."
+      });
+    else res.status(200).send(data);
+  });
   }
   
 

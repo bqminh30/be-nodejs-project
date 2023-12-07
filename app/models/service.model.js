@@ -67,7 +67,9 @@ Service.findById = (id, result) => {
 };
 
 Service.getAll = (title, result) => {
-  let query = "SELECT s.id, s.name,s.status, s.unit,s.detail, s.price,s.type_service_id, type_service.name AS type_service from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id";
+  let query = `
+  SELECT s.id, s.name,s.status, s.unit,s.detail, s.price,s.type_service_id,
+   type_service.name AS type_service from service AS s LEFT JOIN type_service ON type_service.id = s.type_service_id`;
 
   if (title) {
     query += ` WHERE name LIKE '%${title}%'`;
