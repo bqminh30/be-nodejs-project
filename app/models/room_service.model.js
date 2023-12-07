@@ -68,7 +68,8 @@ SELECT
     service.name,
     service.price,
     customer.fullname,
-    customer.email
+    customer.email,
+    room.name
 FROM 
     room_service
 INNER JOIN 
