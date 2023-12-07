@@ -5,7 +5,9 @@ const RoomService = function(data) {
   this.quantity = data.quantity;
   this.room_id = data.room_id;
   this.service_id = data.service_id;
-  this.createdAt = new Date();
+  this.order_id = data.order_id;
+  this.customer_id = data.customer_id;
+  this.createdAt = data.createdAt;
   this.updatedAt = data.updatedAt;
 };
 

@@ -3,18 +3,22 @@ const RoomService = require("../models/room_service.model.js");
 module.exports = {
 
   roomserviceCreate: function (req, res) {
+
+    console.log('res', req.body)
     try {
-      if (!req.body) {
-        res.status(400).send({
-          message: "Content can not be empty!",
-        });
-      }
+      // if (!req.body) {
+      //   res.status(400).send({
+      //     message: "Content can not be empty!",
+      //   });
+      // }
 
       // Create a RoomService
       const roomservice = new RoomService({
         quantity: req.body.quantity,
         room_id: req.body.room_id,
+        customer_id: req.body.customer_id,
         service_id: req.body.service_id,
+        order_id: req.body.order_id,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -22,7 +26,7 @@ module.exports = {
       RoomService.create(roomservice, (err, data) => {
         if (err)
           return res.status(400).send({
-            message: "Thiếu dữ liệu yêu cầu",
+            message: err,
           });
         else {
           res.status(200).send({
