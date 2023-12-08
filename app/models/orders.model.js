@@ -188,7 +188,7 @@ Orders.updateStatusOrderById = (data, result) => {
       // Employee exists, proceed with updating the order status
       sql.query(
         "UPDATE orders SET status = ?, employee_id = ?, updatedAt =? WHERE id = ?",
-        [data.status, data.employee_id,new Date(), data.id],
+        [data.status, data.employee_id,new Date(), data.order_id],
         (err, res) => {
           if (err) {
             result(null, err);
@@ -240,6 +240,148 @@ Orders.widgetData = (id,result) => {
       result(null, err)
     }
     result(null, res[0])
+  })
+}
+
+Orders.widgetDataHeader = (id,result) => {
+  let query = `
+  SELECT 
+  JSON_OBJECT(
+    'total_orders_this_week', 
+        (SELECT Count(*) 
+        FROM room),
+    'total_users', 
+        (SELECT COUNT(*) 
+        FROM employee), -- Chỗ này có thể cần điều chỉnh tùy vào cấu trúc của bảng customer
+    'total_orders', 
+        (SELECT COUNT(*) 
+        FROM orders),
+    'total_orders_status_4', 
+        (SELECT COUNT(*) 
+        FROM orders 
+        WHERE status = 3)
+  ) AS order_stats;
+
+  `;
+  sql.query(query, (err, res)=> {
+    if(err){
+      console.log('err', err)
+      result(null, err)
+    }
+    result(null, res)
+  })
+}
+
+
+
+Orders.widgetDataReview = (id,result) => {
+  let query = `
+  SELECT JSON_ARRAYAGG(JSON_OBJECT('label', label, 'value', value)) AS result
+FROM (
+    SELECT '1->2' AS label, COUNT(*) AS value
+    FROM reviews
+    WHERE rating >= 1 AND rating < 2
+    UNION ALL
+    SELECT '2->3' AS label, COUNT(*) AS value
+    FROM reviews
+    WHERE rating >= 2 AND rating < 3
+    UNION ALL
+    SELECT '3->4' AS label, COUNT(*) AS value
+    FROM reviews
+    WHERE rating >= 3 AND rating < 4
+    UNION ALL
+    SELECT '4->5' AS label, COUNT(*) AS value
+    FROM reviews
+    WHERE rating >= 4 AND rating <= 5
+) AS merged_data;
+
+  `;
+  sql.query(query, (err, res)=> {
+    if(err){
+      console.log('err', err)
+      result(null, err)
+    }
+    result(null, res[0])
+  })
+}
+Orders.widgetDataSerive = (id,result) => {
+  let query = `
+  SELECT 
+  JSON_OBJECT(
+      'Single Bed', SUM(CASE WHEN service_id = 7 THEN 1 ELSE 0 END),
+      'Double Bed', SUM(CASE WHEN service_id = 8 THEN 1 ELSE 0 END)
+  ) AS series
+FROM room_service
+WHERE service_id IN (7, 8);
+
+  `;
+  sql.query(query, (err, res)=> {
+    if(err){
+      console.log('err', err)
+      result(null, err)
+    }
+    result(null, res[0])
+  })
+}
+
+
+Orders.widgetDataYear = (id,result) => {
+  let query = `
+  SELECT 
+    JSON_OBJECT(
+        'categories', JSON_ARRAY(
+            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ),
+        'series', JSON_ARRAY(
+            JSON_OBJECT(
+                'year', '2022',
+                'name', 'Total',
+                'data', JSON_ARRAY(
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 1 AND YEAR(createdDate) = 2022),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 2 AND YEAR(createdDate) = 2022),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 3 AND YEAR(createdDate) = 2022),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 4 AND YEAR(createdDate) = 2022),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 5 AND YEAR(createdDate) = 2022),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 6 AND YEAR(createdDate) = 2022),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 7 AND YEAR(createdDate) = 2022),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 8 AND YEAR(createdDate) = 2022),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 9 AND YEAR(createdDate) = 2022),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 10 AND YEAR(createdDate) = 2022),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 11 AND YEAR(createdDate) = 2022),
+                    -- Thêm các tháng còn lại của năm 2022
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 12 AND YEAR(createdDate) = 2022)
+                )
+            ),
+            JSON_OBJECT(
+                'year', '2023',
+                'name', 'Total',
+                'data', JSON_ARRAY(
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 1 AND YEAR(createdDate) = 2023),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 2 AND YEAR(createdDate) = 2023),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 3 AND YEAR(createdDate) = 2023),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 4 AND YEAR(createdDate) = 2023),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 5 AND YEAR(createdDate) = 2023),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 6 AND YEAR(createdDate) = 2023),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 7 AND YEAR(createdDate) = 2023),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 8 AND YEAR(createdDate) = 2023),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 9 AND YEAR(createdDate) = 2023),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 10 AND YEAR(createdDate) = 2023),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 111 AND YEAR(createdDate) = 2023),
+                    -- Thêm các tháng còn lại của năm 2023
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 12 AND YEAR(createdDate) = 2023)
+                )
+            )
+        )
+    ) AS chart
+FROM dual;
+
+  `;
+  sql.query(query, (err, res)=> {
+    if(err){
+      console.log('err', err)
+      result(null, err)
+    }
+    result(null, res)
   })
 }
 

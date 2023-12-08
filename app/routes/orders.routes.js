@@ -12,7 +12,14 @@ module.exports = (app) => {
     router.get('/:id',orders.getOrderById)
 
     router.post('/widget-order', orders.totalWidgetData)
+
+    router.post('/widget-order-header', orders.totalWidgetDataHeader)
+
+    router.post('/widget-order-year', orders.totalWidgetDataYear)
+    router.post('/widget-order-service', orders.totalWidgetDataService)
+    router.post('/widget-order-review', orders.totalWidgetDataReview)
   
+
     // get orders status
     router.get('/status/:id',orders.getOrderStatusById)
 

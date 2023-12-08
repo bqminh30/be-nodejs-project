@@ -95,13 +95,13 @@ exports.updateOrderStatus = (req, res) => {
   const order_id  = data.id
 
   // Validate that both 'employee_id' and 'order_id' are provided
-  if (!employee_id || !order_id) {
-    return res.status(400).json({ message: "Both 'employee_id' and 'order_id' are required." });
-  }
+  // if (!employee_id || !order_id) {
+  //   return res.status(400).json({ message: "Both 'employee_id' and 'order_id' are required." });
+  // }
   
 
   // Call the 'Orders.updateStatusOrderById' function with the employee and order IDs
-  Orders.updateStatusOrderById({ id: order_id,status: data.status, employee_id }, (err, result) => {
+  Orders.updateStatusOrderById({ order_id: order_id,status: data.status, employee_id }, (err, result) => {
     if (err) {
       return res.status(500).json({ message: "Error updating order status.", error: err.message });
     }
@@ -119,6 +119,71 @@ exports.updateOrderStatus = (req, res) => {
 exports.totalWidgetData = (req, res) => {
   try {
     Orders.widgetData(req.params.id,(err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving Orders.",
+        });
+      else res.status(200).send(data);
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error get orders", error: error.message });
+  }
+}
+exports.totalWidgetDataHeader = (req, res) => {
+  try {
+    Orders.widgetDataHeader(req.params.id,(err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving Orders.",
+        });
+      else res.status(200).send(data);
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error get orders", error: error.message });
+  }
+}
+
+exports.totalWidgetDataReview = (req, res) => {
+  try {
+    Orders.widgetDataReview(req.params.id,(err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving Orders.",
+        });
+      else res.status(200).send(data);
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error get orders", error: error.message });
+  }
+}
+exports.totalWidgetDataService = (req, res) => {
+  try {
+    Orders.widgetDataSerive(req.params.id,(err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving Orders.",
+        });
+      else res.status(200).send(data);
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error get orders", error: error.message });
+  }
+}
+exports.totalWidgetDataYear = (req, res) => {
+  try {
+    Orders.widgetDataYear(req.params.id,(err, data) => {
       if (err)
         res.status(500).send({
           message:

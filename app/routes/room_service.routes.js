@@ -6,6 +6,9 @@ module.exports = (app) => {
     router.get("/", room_service.findAll);
     // //Get a Room
     router.get('/:id',room_service.findDetail)
+
+     //Update a new Room
+     router.put("/status", room_service.updateServiceStatus);
     // //Get Rooms by type Room id
     // router.get('/type/:id',room.findRoomsByTypeRoomId)
     // // Create a new Room

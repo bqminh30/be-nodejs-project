@@ -128,4 +128,95 @@ INNER JOIN
   });
 };
 
+RoomService.updateStatusOrderById = (data, result) => {
+      // Fetch the room_service information
+      sql.query(
+        "SELECT id, order_id, service_id, active FROM room_service WHERE id = ?",
+        [data.id],
+        (err, roomServiceResult) => {
+          if (err) {
+            result(null, err);
+            return;
+          }
+
+          if (roomServiceResult.length === 0) {
+            result({ message: "Room service not found" }, null);
+            return;
+          }
+
+          const roomService = roomServiceResult[0];
+
+          // Fetch the price from the service table
+          sql.query(
+            "SELECT price FROM service WHERE id = ?",
+            [roomService.service_id],
+            (err, serviceResult) => {
+              if (err) {
+                result(null, err);
+                return;
+              }
+
+              if (serviceResult.length === 0) {
+                result({ message: "Service not found" }, null);
+                return;
+              }
+
+              const price = serviceResult[0].price;
+
+              // Update room_service active status
+              sql.query(
+                "UPDATE room_service SET active = ?, updatedAt = ? WHERE id = ?",
+                [data.active, new Date(), data.id],
+                (err, res) => {
+                  if (err) {
+                    result(null, err);
+                    return;
+                  }
+
+                  if (res.affectedRows === 0) {
+                    result({ message: "Room service update failed" }, null);
+                    return;
+                  }
+
+                  // Check if the status is changed to 1
+                  if (data.active === 1 && roomService.active !== 1) {
+                    // Update service_charge by adding the service price
+                    sql.query(
+                      "UPDATE orders SET service_charge = service_charge + ?, total = total + ? WHERE id = ?",
+                      [price,price, roomService.order_id],
+                      (err, res) => {
+                        if (err) {
+                          result(null, err);
+                          return;
+                        }
+
+                        result(null, res);
+                      }
+                    );
+                  } else if (data.active !== 1 && roomService.active === 1) {
+                    // Update service_charge by subtracting the service price
+                    sql.query(
+                      "UPDATE orders SET service_charge = service_charge - ?, total - ? WHERE id = ?",
+                      [price, price,roomService.order_id],
+                      (err, res) => {
+                        if (err) {
+                          result(null, err);
+                          return;
+                        }
+
+                        result(null, res);
+                      }
+                    );
+                  } else {
+                    result({ message: "No update required" }, null);
+                  }
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+
+
 module.exports = RoomService;
