@@ -9,7 +9,7 @@ const paypal = require("paypal-rest-sdk");
 const app = express();
 const cloudinary = require("cloudinary").v2;
 const stripe = require("stripe")("sk_test_...");
-const path = require('path');
+const path = require("path");
 const { apiPublicKey, apiSecretKey } = require("./app/config/config.js");
 
 const facilitiesRoutes = require("./app/routes/facilities.routes.js");
@@ -146,8 +146,9 @@ app.post("/api/v1/initialize-transaction", async (req, res) => {
 
 app.get("/create", function (req, res) {
   // Build PayPal payment request
+  console.log("re", req);
   var create_payment_json = {
-    intent: "ORDER", 
+    intent: "ORDER",
     payer: {
       payment_method: "paypal",
     },
@@ -177,12 +178,12 @@ app.get("/create", function (req, res) {
         },
         amount: {
           currency: "USD",
-          
+
           total: "200.00", // Initialize total to 0,
           details: {
             tax: "40.00",
-            subtotal: "160.00"
-          }
+            subtotal: "160.00",
+          },
         },
         description: "Washing Bar soap",
       },
@@ -195,7 +196,7 @@ app.get("/create", function (req, res) {
     } else {
       for (let i = 0; i < payment.links.length; i++) {
         if (payment.links[i].rel === "approval_url") {
-          res.status(200).json({approval_url: payment.links[i].href});
+          res.status(200).json({ approval_url: payment.links[i].href });
         }
       }
     }
@@ -224,36 +225,36 @@ app.get("/cancel", (req, res) => {
   res.status(200).json({ success: false });
 });
 
-app.post('/create-paypal-payment', async (req, res) => {
+app.post("/create-paypal-payment", async (req, res) => {
   const paymentData = req.body; // Thông tin đặt phòng từ React Native app
 
-  console.log('runnn')
+  console.log("runnn");
   const create_payment_json = {
-    intent: 'sale',
+    intent: "sale",
     payer: {
-      payment_method: 'paypal',
+      payment_method: "paypal",
     },
     redirect_urls: {
-      return_url: 'http://return.url', // URL để PayPal redirect sau khi thanh toán thành công
-      cancel_url: 'http://cancel.url', // URL để PayPal redirect nếu người dùng huỷ thanh toán
+      return_url: "http://return.url", // URL để PayPal redirect sau khi thanh toán thành công
+      cancel_url: "http://cancel.url", // URL để PayPal redirect nếu người dùng huỷ thanh toán
     },
     transactions: [
       {
         item_list: {
           items: [
             {
-              name: 'Hotel Booking',
+              name: "Hotel Booking",
               price: 100,
-              currency: 'USD', // Đổi sang đơn vị tiền tệ của bạn
+              currency: "USD", // Đổi sang đơn vị tiền tệ của bạn
               quantity: 1,
             },
           ],
         },
         amount: {
-          currency: 'USD', // Đổi sang đơn vị tiền tệ của bạn
+          currency: "USD", // Đổi sang đơn vị tiền tệ của bạn
           total: 100,
         },
-        description: 'Hotel Booking Description',
+        description: "Hotel Booking Description",
       },
     ],
   };

@@ -66,6 +66,17 @@ exports.getReviewsById = (req, res) => {
   });
 };
 
+exports.hiddenController = (req, res) => {
+  const id = req.params.id;
+  Reviews.hidden(id, (err, data) => {
+    if (err)
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving Reviews.",
+      });
+    else res.status(200).send(data);
+  });
+};
+
 // Update a Service identified by the id in the request
 exports.update = (req, res) => {
   // Validate Request

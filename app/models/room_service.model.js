@@ -3,6 +3,7 @@ const sql = require("../config/db.js");
 // constructor
 const RoomService = function (data) {
   this.quantity = data.quantity;
+  this.active = data.active;
   this.room_id = data.room_id;
   this.service_id = data.service_id;
   this.order_id = data.order_id;

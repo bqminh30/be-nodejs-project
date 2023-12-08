@@ -181,4 +181,23 @@ Reviews.remove = (id, result) => {
   });
 };
 
+Reviews.hidden = (id, result) => {
+  sql.query("UPDATE reviews SET status = 0 WHERE id = ?", id, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(null, err);
+      return;
+    }
+
+    if (res.affectedRows == 0) {
+      // not found review with the id
+      result({ kind: "not_found" }, null);
+      return;
+    }
+
+    console.log("deleted reviews with id: ", id);
+    result(null, res);
+  });
+}
+
 module.exports = Reviews;

@@ -14,6 +14,7 @@ module.exports = app => {
   
     // Update a review with id
     router.put("/:id", reviews.update);
+    router.put("/hidden-review/:id", reviews.hiddenController);
   
     // Delete a review with id
     router.delete("/:id", reviews.delete);
