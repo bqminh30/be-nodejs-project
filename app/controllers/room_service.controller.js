@@ -13,6 +13,7 @@ module.exports = {
       // Create a RoomService
       const roomservice = new RoomService({
         quantity: req.body.quantity,
+        active: req.body.active,
         room_id: req.body.room_id,
         customer_id: req.body.customer_id,
         service_id: req.body.service_id,
