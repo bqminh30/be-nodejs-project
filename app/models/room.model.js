@@ -24,8 +24,7 @@ const Rooms = function (data) {
 };
 
 Rooms.updateVoucherCronJob = (result) => {
-  const query = 
-  ` UPDATE room
+  const query = ` UPDATE room
     JOIN vouchers ON room.voucher_id = vouchers.id
     SET room.priceSale = room.price * ((100 - vouchers.value) / 100)
     WHERE room.voucher_id IS NOT NULL
@@ -34,21 +33,20 @@ Rooms.updateVoucherCronJob = (result) => {
       AND vouchers.isShow = 1;
   `;
 
-  sql.query(query,[ new Date(), new Date() ], (err, res) => {
-    if(err){
-      console.log('errr',err)
-      result(err, null)
+  sql.query(query, [new Date(), new Date()], (err, res) => {
+    if (err) {
+      console.log("errr", err);
+      result(err, null);
       return;
-    }else {
-      console.log('runn')
-      result(res)
+    } else {
+      console.log("runn");
+      result(res);
     }
-  })
-}
+  });
+};
 
 Rooms.updateVoucherCronJob_2 = () => {
-  const query = 
-  ` UPDATE room
+  const query = ` UPDATE room
     JOIN vouchers ON room.voucher_id = vouchers.id
     SET room.priceSale = room.price * ((100 - vouchers.value) / 100)
     WHERE room.voucher_id IS NOT NULL
@@ -57,15 +55,14 @@ Rooms.updateVoucherCronJob_2 = () => {
       AND vouchers.isShow = 1;
   `;
 
-  sql.query(query,[ new Date(), new Date() ], (err, res) => {
-    if(err){
-      console.log('errr',err)
-    }else {
-      console.log('runn')
+  sql.query(query, [new Date(), new Date()], (err, res) => {
+    if (err) {
+      console.log("errr", err);
+    } else {
+      console.log("runn");
     }
-  })
-}
-
+  });
+};
 
 Rooms.createRoom = (newRoom, result) => {
   sql.query("INSERT INTO room SET ?", newRoom, (err, res) => {
@@ -81,7 +78,7 @@ Rooms.createRoom = (newRoom, result) => {
 };
 
 Rooms.updateRoomById = (id, value, result) => {
-  console.log('value', value)
+  console.log("value", value);
   sql.query(
     "UPDATE room SET " +
       "name=?, title=?, description=?, price=?,priceSale=?, numberBed =?, numberPeople =?, " +
@@ -214,8 +211,7 @@ GROUP BY r.id;
         const resultImages = JSON.parse(res[0].roomImages);
         const roomRatings = JSON.parse(res[0].roomRating);
 
-        console.log('roomRating',roomRatings)
-        
+        console.log("roomRating", roomRatings);
 
         const dataWithImageArr = {
           ...res[0], // Copy the existing properties from res[0]
@@ -236,8 +232,10 @@ GROUP BY r.id;
 
 Rooms.getAll = (title, result) => {
   let query = `SELECT r.*, 
-  IF(SUM(rv.status = 0) > 0, '[]', 
+  IF(COUNT(rv.id) = 0, '[]',
+    IF(SUM(rv.status = 0) > 0, '[]', 
       CONCAT('[', GROUP_CONCAT('{"id":', rv.id, ',"name":"', rv.rating, '","status":"', rv.status, '" }' SEPARATOR ','), ']')
+    )
   ) AS roomRating,
   room_image.roomImages
 FROM room r 
@@ -248,6 +246,7 @@ LEFT JOIN (
 ) room_image ON room_image.room_id = r.id
 LEFT JOIN reviews rv ON rv.room_id = r.id 
 GROUP BY r.id;
+
 
 
   `;
@@ -293,17 +292,17 @@ Rooms.getLimit = (id, result) => {
   ORDER BY r.rating DESC LIMIT ${id};
 `;
 
-sql.query(query, (err, res) => {
-if (err) {
-  console.log("error: ", err);
-  result(err, null);
-  return;
-}
+  sql.query(query, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
 
-// console.log("rooms: ", res);
-result(null, res);
-});
-}
+    // console.log("rooms: ", res);
+    result(null, res);
+  });
+};
 
 Rooms.findByLabel = (data, result) => {
   sql.query(`SELECT * FROM room WHERE label = ${data}`, (err, res) => {
@@ -330,7 +329,6 @@ Rooms.getRoomsByRoomTypeId = (id, result) => {
   });
 };
 
-
 Rooms.searchRooms = (value, result) => {
   const {
     name,
@@ -347,12 +345,12 @@ Rooms.searchRooms = (value, result) => {
   if (name) {
     // Check if the name is a number
     const isNumber = !isNaN(name);
-    
+
     if (isNumber) {
-      conditions.push('numberRooms >= ?');
+      conditions.push("numberRooms >= ?");
       values.push(parseInt(name, 10));
     } else {
-      conditions.push('name LIKE ?');
+      conditions.push("name LIKE ?");
       values.push(`%${name}%`);
     }
   }
@@ -378,34 +376,34 @@ Rooms.searchRooms = (value, result) => {
   }
 
   if (numberRooms) {
-    conditions.push('numberRooms >= ?');
+    conditions.push("numberRooms >= ?");
     values.push(numberRooms);
   }
 
   if (numberPeople) {
-    conditions.push('numberPeople >= ?');
+    conditions.push("numberPeople >= ?");
     values.push(numberPeople);
   }
 
   if (numberChildren) {
-    conditions.push('numberChildren >= ?');
+    conditions.push("numberChildren >= ?");
     values.push(numberChildren);
   }
 
   const queryString = `
     SELECT *
     FROM room
-    WHERE ${conditions.join(' AND ')}
+    WHERE ${conditions.join(" AND ")}
   `;
 
   db.query(queryString, values, (err, results) => {
     if (err) {
-      console.error('Error executing query:', err);
-      res.status(500).json({ success: false, error: 'Internal Server Error' });
+      console.error("Error executing query:", err);
+      res.status(500).json({ success: false, error: "Internal Server Error" });
     } else {
       res.json({ success: true, data: results });
     }
   });
-}
+};
 
 module.exports = Rooms;
