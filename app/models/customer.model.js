@@ -143,6 +143,22 @@ Customer.updateProfile = (data, userId) => {
   });
 };
 
+Customer.getProfile = (data, result) => {
+  // console.log('data',data)
+  sql.query(
+    "Select * from customer WHERE id = ?",
+    [data],
+    (err, res) => {
+      if (err) {
+        result(err);
+        return;
+      }
+      result(null, res);
+    }
+  );
+}
+
+
 Customer.checkEmailExist = (id) => {
   return new Promise((resolve, reject) => {
     const query = `

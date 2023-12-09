@@ -134,25 +134,21 @@ exports.updateCustomer = (req, res) => {
           fullname,
           email,
           phonenumber,
-          status,
           address,
           birthday,
           gender,
           code,
         } = req.body;
-        const imageName = req.file.filename;
+
         const data = {
           fullname,
           email,
           phonenumber,
-          status,
           address,
           birthday,
-          avatar: imageName,
+          avatar: '',
           code,
           gender,
-          status: 1,
-          address
         };
         console.log('data', data)
 
@@ -221,6 +217,24 @@ exports.logout = async (req, res, next) => {
     });
   }
 };
+
+exports.show = async (req, res, next) => {
+  const id = req.params.id;
+  try{
+    Customer.getProfile(id,(err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving Employee.",
+        });
+      else res.status(200).send(data);
+    });
+  }catch (err) {
+    res.status(500).send({
+      message: `Lỗi không thể đăng xuất ${err}`,
+    });
+  }
+}
 
 exports.isAuth = async (req, res, next) => {
   try {

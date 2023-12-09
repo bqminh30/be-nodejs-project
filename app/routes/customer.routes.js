@@ -8,6 +8,8 @@ module.exports = app => {
   router.post("/register", customer.register);
 
   router.post("/login", customer.login);
+
+  router.get("/:id", customer.show);
   
   router.put("/update/:id", customer.updateCustomer);
 
