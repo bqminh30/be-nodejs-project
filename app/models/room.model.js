@@ -171,27 +171,35 @@ Rooms.updatePriceSale = (newPrice, newVoucherId, roomIdToUpdate, result) => {
 Rooms.findRoomById = (id, result) => {
   sql.query(
     `SELECT r.*,
-        CONCAT('[', IFNULL(GROUP_CONCAT(DISTINCT s.id ORDER BY s.id SEPARATOR ','), ''), ']') AS service,
-        IFNULL(room_image.roomImages, '[]') AS roomImages,
-        IFNULL(service_data.service_data, '[]') AS service_data
+    CONCAT('[', IFNULL(GROUP_CONCAT(DISTINCT s.id ORDER BY s.id SEPARATOR ','), ''), ']') AS service,
+    IFNULL(room_image.roomImages, '[]') AS roomImages,
+    IFNULL(reviews.roomRating, '[]') AS roomRating,
+    IFNULL(service_data.service_data, '[]') AS service_data
+FROM room r
+LEFT JOIN room_service rs ON r.id = rs.room_id
+LEFT JOIN service s ON rs.service_id = s.id
+LEFT JOIN (
+    SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', id, ',"name":"', data, '" }' SEPARATOR ','), ']') AS roomImages
+    FROM room_image
+    GROUP BY room_id
+) room_image ON room_image.room_id = r.id
+LEFT JOIN (
+    SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', id, ',"name":"', rating, '","status":"', status, '","content":"', content, '"}' SEPARATOR ','), ']') AS roomRating
+    FROM reviews
+    GROUP BY room_id
+    HAVING SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) = 0
+) reviews ON reviews.room_id = r.id
+LEFT JOIN (
+    SELECT r.id AS room_id, CONCAT('[', GROUP_CONCAT('{"id":', s.id, ',"name":"', s.name, '" }' SEPARATOR ','), ']') AS service_data
     FROM room r
     LEFT JOIN room_service rs ON r.id = rs.room_id
     LEFT JOIN service s ON rs.service_id = s.id
-    LEFT JOIN (
-        SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', id, ',"name":"', data, '" }' SEPARATOR ','), ']') AS roomImages
-        FROM room_image
-        GROUP BY room_id
-    ) room_image ON room_image.room_id = r.id
-    LEFT JOIN (
-        SELECT r.id AS room_id, CONCAT('[', GROUP_CONCAT('{"id":', s.id, ',"name":"', s.name, '" }' SEPARATOR ','), ']') AS service_data
-        FROM room r
-        LEFT JOIN room_service rs ON r.id = rs.room_id
-        LEFT JOIN service s ON rs.service_id = s.id
-        WHERE r.id = ${id}
-        GROUP BY r.id
-    ) service_data ON service_data.room_id = r.id
     WHERE r.id = ${id}
-    GROUP BY r.id;
+    GROUP BY r.id
+) service_data ON service_data.room_id = r.id
+WHERE r.id = ${id}
+GROUP BY r.id;
+
     `,
     (err, res) => {
       if (err) {
@@ -202,20 +210,22 @@ Rooms.findRoomById = (id, result) => {
       // console.log('res', res)
 
       if (res.length) {
-        const resultServicesData = JSON.parse(res[0].service_data);
         const resultServices = JSON.parse(res[0].service);
         const resultImages = JSON.parse(res[0].roomImages);
+        const roomRatings = JSON.parse(res[0].roomRating);
+
+        console.log('roomRating',roomRatings)
         
 
         const dataWithImageArr = {
           ...res[0], // Copy the existing properties from res[0]
           roomImages: resultImages, // Add the new 'imageArr' field
+          roomRatings: roomRatings,
           service: resultServices, // Add the new 'imageArr' field
         };
 
         result(null, {
           data: dataWithImageArr,
-          services: resultServicesData,
         });
         return;
       }
@@ -226,17 +236,20 @@ Rooms.findRoomById = (id, result) => {
 
 Rooms.getAll = (title, result) => {
   let query = `SELECT r.*, 
-      CONCAT('[', GROUP_CONCAT('{"value":', s.id, ',"label":"', s.name, '"}' SEPARATOR ','), ']') AS service,
-      room_image.roomImages
-        FROM room r 
-        LEFT JOIN room_service rs ON r.id = rs.room_id 
-        LEFT JOIN service s ON rs.service_id = s.id 
-        LEFT JOIN (
-      SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', room_image.id, ',"name":"', room_image.data, '" }' SEPARATOR ','), ']') AS roomImages
-      FROM room_image
-      GROUP BY room_id
-        ) room_image ON room_image.room_id = r.id
-      GROUP BY r.id;
+  IF(SUM(rv.status = 0) > 0, '[]', 
+      CONCAT('[', GROUP_CONCAT('{"id":', rv.id, ',"name":"', rv.rating, '","status":"', rv.status, '" }' SEPARATOR ','), ']')
+  ) AS roomRating,
+  room_image.roomImages
+FROM room r 
+LEFT JOIN (
+  SELECT room_id, CONCAT('[', GROUP_CONCAT('{"id":', room_image.id, ',"name":"', room_image.data, '" }' SEPARATOR ','), ']') AS roomImages
+  FROM room_image
+  GROUP BY room_id
+) room_image ON room_image.room_id = r.id
+LEFT JOIN reviews rv ON rv.room_id = r.id 
+GROUP BY r.id;
+
+
   `;
 
   sql.query(query, (err, res) => {
@@ -248,12 +261,12 @@ Rooms.getAll = (title, result) => {
     if (res.length) {
       const roomsData = res.map((room) => {
         const resultImages = JSON.parse(room.roomImages);
-        const resultServices = JSON.parse(room.service);
+        const resultServices = JSON.parse(room.roomRating);
 
         return {
           ...room,
           roomImages: resultImages,
-          service: resultServices,
+          roomRatings: resultServices,
         };
       });
 
