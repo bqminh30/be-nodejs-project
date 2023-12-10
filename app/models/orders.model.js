@@ -50,6 +50,7 @@ Orders.createOrderWithDetails = async (requestData) => {
     throw `${error}`;
   }
 };
+
 Orders.create = (requestData) => {
   return new Promise((resolve, reject) => {
     //insert the order data into the "orders" table
@@ -312,10 +313,11 @@ Orders.widgetDataSerive = (id, result) => {
   SELECT 
   JSON_OBJECT(
       'Single Bed', SUM(CASE WHEN service_id = 7 THEN 1 ELSE 0 END),
-      'Double Bed', SUM(CASE WHEN service_id = 8 THEN 1 ELSE 0 END)
+      'Double Bed', SUM(CASE WHEN service_id = 8 THEN 1 ELSE 0 END),
+      'Children's Beds', SUM(CASE WHEN service_id = 9 THEN 1 ELSE 0 END),
   ) AS series
 FROM room_service
-WHERE service_id IN (7, 8);
+WHERE service_id IN (7, 8, 9);
 
   `;
   sql.query(query, (err, res) => {
