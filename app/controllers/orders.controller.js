@@ -4,6 +4,7 @@ const Order_detail = require("../models/order_detail.model.js");
 exports.booking = async (req, res) => {
   try {
     const requestData = req.body;
+    console.log('er',requestData)
     const result = await Orders.createOrderWithDetails(requestData);
     res.status(200).json({ message: "Order created successfully" });
   } catch (error) {

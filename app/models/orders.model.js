@@ -55,7 +55,7 @@ Orders.create = (requestData) => {
   return new Promise((resolve, reject) => {
     //insert the order data into the "orders" table
     sql.query(
-      "INSERT INTO orders (createdDate, count, status, total,phone, fullname, email,code, note,service_charge, type_payment,customer_id, createdAt,updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?)",
+      "INSERT INTO orders (createdDate, count, status, total,phone, fullname, email,code, note,service_charge, type_payment,customer_id, createdAt,updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?)",
       [
         new Date(),
         requestData.count,
