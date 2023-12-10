@@ -12,13 +12,13 @@ const Orders = function (data) {
   this.email = data.email;
   this.code = data.code;
   this.phone = data.phone;
+  this.service_charge = data.service_charge;
   this.customer_id = data.customer_id;
   this.employee_id = data.employee_id;
   this.type_payment = data.type_payment;
   this.createdAt = data.createdAt;
   this.updatedAt = data.updatedAt;
 };
-
 
 Orders.createOrderWithDetails = async (requestData) => {
   const { order, orderDetails } = requestData;
@@ -34,7 +34,7 @@ Orders.createOrderWithDetails = async (requestData) => {
       orderDetails.map(async (detail) => {
         // Associate order detail with the created order
         detail.order_id = createdOrderId;
-        
+
         // Create the order detail and store the result (including its id)
         const createdDetail = await Order_Detail.createOrderDetail(detail);
 
@@ -42,7 +42,7 @@ Orders.createOrderWithDetails = async (requestData) => {
       })
     );
 
-    console.log('orders created', createdOrderDetails)
+    console.log("orders created", createdOrderDetails);
 
     // Return the created order and order details
     return { order: createdOrderId, orderDetails: createdOrderDetails };
@@ -54,18 +54,19 @@ Orders.create = (requestData) => {
   return new Promise((resolve, reject) => {
     //insert the order data into the "orders" table
     sql.query(
-      "INSERT INTO orders (createdDate, count, status, total,phone, fullname, email,code, note, type_payment,customer_id, createdAt,updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?)",
+      "INSERT INTO orders (createdDate, count, status, total,phone, fullname, email,code, note,service_charge, type_payment,customer_id, createdAt,updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?)",
       [
         new Date(),
         requestData.count,
-        requestData.status == 'Pending' ? 1: 0,
+        requestData.status == "Pending" ? 1 : 0,
         requestData.total,
         requestData.profile.phone,
         requestData.profile.fullname,
         requestData.profile.email,
         requestData.profile.code,
         requestData.note,
-        'paypal',
+        0,
+        "paypal",
         requestData.customer_id,
         new Date(),
         new Date(),
@@ -157,15 +158,18 @@ Orders.getOrderStatus = (status, result) => {
   });
 };
 
-
-Orders.getOrderCustomer  = (id, result) => {
-  sql.query("SELECT * FROM orders WHERE customer_id = ? ORDER BY createdDate DESC", id, (err, res) => {
-    if (err) {
-      result(null, err);
-      return;
+Orders.getOrderCustomer = (id, result) => {
+  sql.query(
+    "SELECT * FROM orders WHERE customer_id = ? ORDER BY createdDate DESC",
+    id,
+    (err, res) => {
+      if (err) {
+        result(null, err);
+        return;
+      }
+      result(null, res);
     }
-    result(null, res);
-  });
+  );
 };
 
 Orders.updateStatusOrderById = (data, result) => {
@@ -188,7 +192,7 @@ Orders.updateStatusOrderById = (data, result) => {
       // Employee exists, proceed with updating the order status
       sql.query(
         "UPDATE orders SET status = ?, employee_id = ?, updatedAt =? WHERE id = ?",
-        [data.status, data.employee_id,new Date(), data.order_id],
+        [data.status, data.employee_id, new Date(), data.order_id],
         (err, res) => {
           if (err) {
             result(null, err);
@@ -209,7 +213,7 @@ Orders.updateStatusOrderById = (data, result) => {
   );
 };
 
-Orders.widgetData = (id,result) => {
+Orders.widgetData = (id, result) => {
   let query = `
       SELECT
       (
@@ -234,16 +238,16 @@ Orders.widgetData = (id,result) => {
       GROUP BY DATE_FORMAT(createdDate, '%b')
     ) subquery;
   `;
-  sql.query(query, (err, res)=> {
-    if(err){
-      console.log('err', err)
-      result(null, err)
+  sql.query(query, (err, res) => {
+    if (err) {
+      console.log("err", err);
+      result(null, err);
     }
-    result(null, res[0])
-  })
-}
+    result(null, res[0]);
+  });
+};
 
-Orders.widgetDataHeader = (id,result) => {
+Orders.widgetDataHeader = (id, result) => {
   let query = `
   SELECT 
   JSON_OBJECT(
@@ -263,18 +267,16 @@ Orders.widgetDataHeader = (id,result) => {
   ) AS order_stats;
 
   `;
-  sql.query(query, (err, res)=> {
-    if(err){
-      console.log('err', err)
-      result(null, err)
+  sql.query(query, (err, res) => {
+    if (err) {
+      console.log("err", err);
+      result(null, err);
     }
-    result(null, res)
-  })
-}
+    result(null, res);
+  });
+};
 
-
-
-Orders.widgetDataReview = (id,result) => {
+Orders.widgetDataReview = (id, result) => {
   let query = `
   SELECT JSON_ARRAYAGG(JSON_OBJECT('label', label, 'value', value)) AS result
 FROM (
@@ -296,15 +298,16 @@ FROM (
 ) AS merged_data;
 
   `;
-  sql.query(query, (err, res)=> {
-    if(err){
-      console.log('err', err)
-      result(null, err)
+  sql.query(query, (err, res) => {
+    if (err) {
+      console.log("err", err);
+      result(null, err);
     }
-    result(null, res[0])
-  })
-}
-Orders.widgetDataSerive = (id,result) => {
+    result(null, res[0]);
+  });
+};
+
+Orders.widgetDataSerive = (id, result) => {
   let query = `
   SELECT 
   JSON_OBJECT(
@@ -315,17 +318,16 @@ FROM room_service
 WHERE service_id IN (7, 8);
 
   `;
-  sql.query(query, (err, res)=> {
-    if(err){
-      console.log('err', err)
-      result(null, err)
+  sql.query(query, (err, res) => {
+    if (err) {
+      console.log("err", err);
+      result(null, err);
     }
-    result(null, res[0])
-  })
-}
+    result(null, res[0]);
+  });
+};
 
-
-Orders.widgetDataYear = (id,result) => {
+Orders.widgetDataYear = (id, result) => {
   let query = `
   SELECT 
     JSON_OBJECT(
@@ -376,14 +378,37 @@ Orders.widgetDataYear = (id,result) => {
 FROM dual;
 
   `;
-  sql.query(query, (err, res)=> {
-    if(err){
-      console.log('err', err)
-      result(null, err)
+  sql.query(query, (err, res) => {
+    if (err) {
+      console.log("err", err);
+      result(null, err);
     }
-    result(null, res)
-  })
-}
+    result(null, res);
+  });
+};
+
+Orders.widgetDataTotal = (id, result) => {
+  let query = `
+  SELECT 
+  YEAR(createdDate) AS year,
+  MONTH(createdDate) AS month,
+  SUM(total) AS total,
+  SUM(service_charge) AS service_charge
+FROM orders
+WHERE YEAR(createdDate) IN (2022, 2023) -- Chọn các năm 2022 và 2023
+GROUP BY YEAR(createdDate), MONTH(createdDate)
+ORDER BY YEAR(createdDate), MONTH(createdDate)
+
+`;
+  sql.query(query, (err, res) => {
+    if (err) {
+      result(null, err);
+      return;
+    }
+
+    result(null, res);
+  });
+};
 
 Orders.remove = (id, result) => {
   sql.query("DELETE FROM orders WHERE id = ?", id, (err, res) => {

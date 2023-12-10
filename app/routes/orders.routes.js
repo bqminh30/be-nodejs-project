@@ -18,6 +18,7 @@ module.exports = (app) => {
     router.post('/widget-order-year', orders.totalWidgetDataYear)
     router.post('/widget-order-service', orders.totalWidgetDataService)
     router.post('/widget-order-review', orders.totalWidgetDataReview)
+    router.post('/widget-order-total', orders.widgetDataTotal)
   
 
     // get orders status
