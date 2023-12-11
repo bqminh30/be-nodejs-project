@@ -34,6 +34,8 @@ module.exports = {
         const room_id = req.body.room_id;
         const promises = [];
 
+        console.log('fies',files)
+
         if (!files || files.length === 0) {
           return res.status(400).send({
             message: "No image files to update.",
@@ -41,55 +43,55 @@ module.exports = {
           });
         }
 
-        // for (const file of files) {
-        //   // Ảnh ở đây là dưới dạng base64, bạn có thể giữ nó như vậy
-        //   let dataImage = file.path;
-        //   try {
-        //     // Tải ảnh lên Cloudinary hoặc nơi lưu trữ tương tự
-        //     const result = await cloudinary.uploader.upload(
-        //       dataImage ?  `G:/ProjectHou/images/p1/${dataImage}` : ,
-        //       {
-        //         // Cấu hình Cloudinary nếu cần
-        //       }
-        //     );
-        //     dataImage = result.url;
-        //   } catch (err) {
-        //     console.log("Error uploading to Cloudinary:", err);
-        //   }
+        for (const file of files) {
+          // Ảnh ở đây là dưới dạng base64, bạn có thể giữ nó như vậy
+          let dataImage = file.path;
+          try {
+            // Tải ảnh lên Cloudinary hoặc nơi lưu trữ tương tự
+            const result = await cloudinary.uploader.upload(
+              dataImage ?  `G:/ProjectHou/images/p1/${dataImage}` : 
+              {
+                // Cấu hình Cloudinary nếu cần
+              }
+            );
+            dataImage = result.url;
+          } catch (err) {
+            console.log("Error uploading to Cloudinary:", err);
+          }
 
-        //   const inputValues = {
-        //     name: file.path,
-        //     data: dataImage,
-        //     room_id: room_id,
-        //     createdAt: new Date(),
-        //   };
+          const inputValues = {
+            name: file.path,
+            data: dataImage,
+            room_id: room_id,
+            createdAt: new Date(),
+          };
 
-        //   const promise = new Promise((resolve, reject) => {
-        //     RoomImage.create(inputValues, (err, data) => {
-        //       if (err) {
-        //         reject(err);
-        //       } else {
-        //         resolve(data);
-        //       }
-        //     });
-        //   });
+          const promise = new Promise((resolve, reject) => {
+            RoomImage.create(inputValues, (err, data) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(data);
+              }
+            });
+          });
 
-        //   promises.push(promise);
-        // }
+          promises.push(promise);
+        }
 
-        // try {
-        //   await Promise.all(promises);
-        //   res.status(200).send({
-        //     message: "Room images updated successfully",
-        //     status: 200,
-        //   });
-        // } catch (error) {
-        //   res.status(500).send({
-        //     message: "Failed to update room images",
-        //     status: 500,
-        //     data: error,
-        //   });
-        // }
+        try {
+          await Promise.all(promises);
+          res.status(200).send({
+            message: "Room images updated successfully",
+            status: 200,
+          });
+        } catch (error) {
+          res.status(500).send({
+            message: "Failed to update room images",
+            status: 500,
+            data: error,
+          });
+        }
       });
     } catch (error) {
       res.status(500).send({
@@ -147,9 +149,8 @@ module.exports = {
             });
           }
 
-
           for (const file of files) {
-           if (file.preview?.startsWith("blob:")) {
+            if (file.preview?.startsWith("blob:")) {
               // Xử lý ảnh có đường dẫn "blob" (đưa ảnh lên Cloud và lưu vào CSDL)
               try {
                 const result = await cloudinary.uploader.upload(
@@ -177,8 +178,7 @@ module.exports = {
               } catch (err) {
                 console.log("Error uploading to Cloudinary:", err);
               }
-            }
-             else if (file?.path?.includes("res.cloud")) {
+            } else if (file?.path?.includes("res.cloud")) {
               // Xử lý ảnh có đường dẫn "res.cloud" (không cần thay đổi)
               const inputValues = {
                 name: file.path, // Tên ảnh không thay đổi
@@ -196,7 +196,7 @@ module.exports = {
                 });
               });
               promises.push(promise);
-            } 
+            }
           }
 
           try {
