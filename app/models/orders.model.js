@@ -371,9 +371,28 @@ Orders.widgetDataYear = (id, result) => {
                     (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 8 AND YEAR(createdDate) = 2023),
                     (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 9 AND YEAR(createdDate) = 2023),
                     (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 10 AND YEAR(createdDate) = 2023),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 111 AND YEAR(createdDate) = 2023),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 11 AND YEAR(createdDate) = 2023),
                     -- Thêm các tháng còn lại của năm 2023
                     (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 12 AND YEAR(createdDate) = 2023)
+                )
+            ),
+            JSON_OBJECT(
+                'year', '2024',
+                'name', 'Total',
+                'data', JSON_ARRAY(
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 1 AND YEAR(createdDate) = 2024),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 2 AND YEAR(createdDate) = 2024),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 3 AND YEAR(createdDate) = 2024),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 4 AND YEAR(createdDate) = 2024),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 5 AND YEAR(createdDate) = 2024),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 6 AND YEAR(createdDate) = 2024),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 7 AND YEAR(createdDate) = 2024),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 8 AND YEAR(createdDate) = 2024),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 9 AND YEAR(createdDate) = 2024),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 10 AND YEAR(createdDate) = 2024),
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 11 AND YEAR(createdDate) = 2024),
+                    -- Thêm các tháng còn lại của năm 2024
+                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 12 AND YEAR(createdDate) = 2024)
                 )
             )
         )
