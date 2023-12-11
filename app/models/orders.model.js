@@ -393,14 +393,17 @@ FROM dual;
 Orders.widgetDataTotal = (id, result) => {
   let query = `
   SELECT 
-  YEAR(createdDate) AS year,
-  MONTH(createdDate) AS month,
-  SUM(total) AS total,
-  SUM(service_charge) AS service_charge
-FROM orders
-WHERE YEAR(createdDate) IN (2022, 2023) -- Chọn các năm 2022 và 2023
-GROUP BY YEAR(createdDate), MONTH(createdDate)
-ORDER BY YEAR(createdDate), MONTH(createdDate)
+  YEAR(o.createdDate) AS year,
+  MONTH(o.createdDate) AS month,
+  SUM(o.total) AS total,
+  SUM(o.service_charge) AS service_charge
+FROM orders o
+LEFT JOIN room_service rs ON o.id = rs.order_id -- Thay order_id bằng khóa ngoại thích hợp
+WHERE YEAR(o.createdDate) IN (2022, 2023) -- Chọn các năm 2022 và 2023
+  AND (o.status = 1 OR rs.active = 1) -- Chỉ khi status của orders = 1 hoặc active của room_service = 1
+GROUP BY YEAR(o.createdDate), MONTH(o.createdDate)
+ORDER BY YEAR(o.createdDate), MONTH(o.createdDate);
+
 
 `;
   sql.query(query, (err, res) => {
