@@ -279,24 +279,25 @@ Orders.widgetDataHeader = (id, result) => {
 
 Orders.widgetDataReview = (id, result) => {
   let query = `
-  SELECT JSON_ARRAYAGG(JSON_OBJECT('label', label, 'value', value)) AS result
+  SELECT JSON_ARRAYAGG(JSON_OBJECT('label', label, 'value', IF(value = 0, 0.1, value))) AS result
 FROM (
-    SELECT '1->2' AS label, COUNT(*) AS value
+    SELECT '1->2' AS label, IFNULL(COUNT(*), 0) AS value
     FROM reviews
     WHERE rating >= 1 AND rating < 2
     UNION ALL
-    SELECT '2->3' AS label, COUNT(*) AS value
+    SELECT '2->3' AS label, IFNULL(COUNT(*), 0) AS value
     FROM reviews
     WHERE rating >= 2 AND rating < 3
     UNION ALL
-    SELECT '3->4' AS label, COUNT(*) AS value
+    SELECT '3->4' AS label, IFNULL(COUNT(*), 0) AS value
     FROM reviews
     WHERE rating >= 3 AND rating < 4
     UNION ALL
-    SELECT '4->5' AS label, COUNT(*) AS value
+    SELECT '4->5' AS label, IFNULL(COUNT(*), 0) AS value
     FROM reviews
     WHERE rating >= 4 AND rating <= 5
 ) AS merged_data;
+
 
   `;
   sql.query(query, (err, res) => {
