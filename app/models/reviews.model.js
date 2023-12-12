@@ -53,72 +53,47 @@ Reviews.checkReview = (data, result) => {
 Reviews.createReview = (newReview, result) => {
   // If the order meets both criteria, proceed with creating the review
   // Your database insertion logic goes here
+
   sql.query(
-    "SELECT id FROM reviews WHERE customer_id = ? AND room_id = ?",
-    [newReview.customer_id, newReview.room_id],
-    (err, existingReviews) => {
+    "INSERT INTO reviews (content, image, rating, status, room_id, customer_id, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?,?)",
+    [
+      newReview.content,
+      newReview.image,
+      newReview.rating,
+      newReview.status,
+      newReview.room_id,
+      newReview.customer_id,
+      new Date(),
+      new Date(),
+    ],
+    (err, res) => {
       if (err) {
         return result(
           {
             status: 500,
-            message: `Error checking existing reviews: ${err}`,
+            message: `Error creating review: ${err}`,
           },
           null
         );
       }
 
-      if (existingReviews.length > 0) {
-        return result(
-          {
-            status: 403,
-            message: "You have already reviewed this room.",
-          },
-          null
-        );
-      }
-
+      // Review created successfully, now calculate and update room rating
       sql.query(
-        "INSERT INTO reviews (content, image, rating, status, room_id, customer_id, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?,?)",
-        [
-          newReview.content,
-          newReview.image,
-          newReview.rating,
-          newReview.status,
-          newReview.room_id,
-          newReview.customer_id,
-          new Date(),
-          new Date(),
-        ],
-        (err, res) => {
+        "UPDATE room AS r SET r.rating = (SELECT AVG(rv.rating) FROM reviews AS rv WHERE rv.room_id = r.id) WHERE r.id = ?",
+        [newReview.room_id],
+        (err) => {
           if (err) {
             return result(
               {
                 status: 500,
-                message: `Error creating review: ${err}`,
+                message: `Error updating room rating: ${err}`,
               },
               null
             );
           }
 
-          // Review created successfully, now calculate and update room rating
-          sql.query(
-            "UPDATE room AS r SET r.rating = (SELECT AVG(rv.rating) FROM reviews AS rv WHERE rv.room_id = r.id) WHERE r.id = ?",
-            [newReview.room_id],
-            (err) => {
-              if (err) {
-                return result(
-                  {
-                    status: 500,
-                    message: `Error updating room rating: ${err}`,
-                  },
-                  null
-                );
-              }
-
-              // Rating updated successfully
-              return result(null, { id: res.insertId, ...newReview });
-            }
-          );
+          // Rating updated successfully
+          return result(null, { id: res.insertId, ...newReview });
         }
       );
     }
@@ -198,6 +173,6 @@ Reviews.hidden = (id, result) => {
     console.log("deleted reviews with id: ", id);
     result(null, res);
   });
-}
+};
 
 module.exports = Reviews;

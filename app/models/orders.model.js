@@ -297,8 +297,6 @@ FROM (
     FROM reviews
     WHERE rating >= 4 AND rating <= 5
 ) AS merged_data;
-
-
   `;
   sql.query(query, (err, res) => {
     if (err) {
@@ -335,70 +333,50 @@ Orders.widgetDataYear = (id, result) => {
   let query = `
   SELECT 
     JSON_OBJECT(
-        'categories', JSON_ARRAY(
-            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        '2022', JSON_ARRAY(
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 1 AND YEAR(createdDate) = 2022),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 2 AND YEAR(createdDate) = 2022),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 3 AND YEAR(createdDate) = 2022),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 4 AND YEAR(createdDate) = 2022),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 5 AND YEAR(createdDate) = 2022),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 6 AND YEAR(createdDate) = 2022),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 7 AND YEAR(createdDate) = 2022),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 8 AND YEAR(createdDate) = 2022),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 9 AND YEAR(createdDate) = 2022),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 10 AND YEAR(createdDate) = 2022),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 11 AND YEAR(createdDate) = 2022),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 12 AND YEAR(createdDate) = 2022)
         ),
-        'series', JSON_ARRAY(
-            JSON_OBJECT(
-                'year', '2022',
-                'name', 'Total',
-                'data', JSON_ARRAY(
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 1 AND YEAR(createdDate) = 2022),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 2 AND YEAR(createdDate) = 2022),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 3 AND YEAR(createdDate) = 2022),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 4 AND YEAR(createdDate) = 2022),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 5 AND YEAR(createdDate) = 2022),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 6 AND YEAR(createdDate) = 2022),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 7 AND YEAR(createdDate) = 2022),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 8 AND YEAR(createdDate) = 2022),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 9 AND YEAR(createdDate) = 2022),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 10 AND YEAR(createdDate) = 2022),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 11 AND YEAR(createdDate) = 2022),
-                    -- Thêm các tháng còn lại của năm 2022
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 12 AND YEAR(createdDate) = 2022)
-                )
-            ),
-            JSON_OBJECT(
-                'year', '2023',
-                'name', 'Total',
-                'data', JSON_ARRAY(
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 1 AND YEAR(createdDate) = 2023),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 2 AND YEAR(createdDate) = 2023),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 3 AND YEAR(createdDate) = 2023),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 4 AND YEAR(createdDate) = 2023),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 5 AND YEAR(createdDate) = 2023),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 6 AND YEAR(createdDate) = 2023),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 7 AND YEAR(createdDate) = 2023),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 8 AND YEAR(createdDate) = 2023),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 9 AND YEAR(createdDate) = 2023),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 10 AND YEAR(createdDate) = 2023),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 11 AND YEAR(createdDate) = 2023),
-                    -- Thêm các tháng còn lại của năm 2023
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 12 AND YEAR(createdDate) = 2023)
-                )
-            ),
-            JSON_OBJECT(
-                'year', '2024',
-                'name', 'Total',
-                'data', JSON_ARRAY(
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 1 AND YEAR(createdDate) = 2024),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 2 AND YEAR(createdDate) = 2024),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 3 AND YEAR(createdDate) = 2024),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 4 AND YEAR(createdDate) = 2024),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 5 AND YEAR(createdDate) = 2024),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 6 AND YEAR(createdDate) = 2024),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 7 AND YEAR(createdDate) = 2024),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 8 AND YEAR(createdDate) = 2024),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 9 AND YEAR(createdDate) = 2024),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 10 AND YEAR(createdDate) = 2024),
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 11 AND YEAR(createdDate) = 2024),
-                    -- Thêm các tháng còn lại của năm 2024
-                    (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 12 AND YEAR(createdDate) = 2024)
-                )
-            )
+        '2023', JSON_ARRAY(
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 1 AND YEAR(createdDate) = 2023),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 2 AND YEAR(createdDate) = 2023),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 3 AND YEAR(createdDate) = 2023),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 4 AND YEAR(createdDate) = 2023),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 5 AND YEAR(createdDate) = 2023),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 6 AND YEAR(createdDate) = 2023),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 7 AND YEAR(createdDate) = 2023),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 8 AND YEAR(createdDate) = 2023),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 9 AND YEAR(createdDate) = 2023),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 10 AND YEAR(createdDate) = 2023),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 11 AND YEAR(createdDate) = 2023),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 12 AND YEAR(createdDate) = 2023)
+        ),
+        '2024', JSON_ARRAY(
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 1 AND YEAR(createdDate) = 2024),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 2 AND YEAR(createdDate) = 2024),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 3 AND YEAR(createdDate) = 2024),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 4 AND YEAR(createdDate) = 2024),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 5 AND YEAR(createdDate) = 2024),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 6 AND YEAR(createdDate) = 2024),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 7 AND YEAR(createdDate) = 2024),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 8 AND YEAR(createdDate) = 2024),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 9 AND YEAR(createdDate) = 2024),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 10 AND YEAR(createdDate) = 2024),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 11 AND YEAR(createdDate) = 2024),
+            (SELECT COUNT(*) FROM orders WHERE MONTH(createdDate) = 12 AND YEAR(createdDate) = 2024)
         )
-    ) AS chart
-FROM dual;
+    ) AS chart;
+
 
   `;
   sql.query(query, (err, res) => {
